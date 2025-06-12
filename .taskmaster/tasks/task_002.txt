@@ -1,0 +1,80 @@
+# Task ID: 2
+# Title: Define and Create Mock Data
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Define the structure of mock data and create realistic dummy data files for calls and SMS messages to be used throughout the application.
+# Details:
+1. Create the following TypeScript interfaces based on the data models specified in the PRD:
+   ```typescript
+   interface CallLog {
+     id: string;
+     callerNumber: string;
+     dialedNumber: string;
+     timestamp: string;
+     duration: string;
+     summary: string;
+     isQualified: boolean;
+     transcript: string[];
+     recordingUrl: string;
+   }
+
+   interface SMSMessage {
+     id: string;
+     body: string;
+     timestamp: string;
+     direction: 'inbound' | 'outbound';
+   }
+
+   interface SMSThread {
+     contactId: string;
+     contactNumber: string;
+     contactName: string;
+     lastMessage: string;
+     timestamp: string;
+     unreadCount: number;
+     messages: SMSMessage[];
+     twilioNumber?: string;
+     callToTextContext?: string;
+   }
+   ```
+2. Create mock data files in src/data/:
+   - mockCalls.ts: Generate 20-30 realistic call logs with varied durations, timestamps, and qualification statuses
+   - mockSms.ts: Create 10-15 SMS threads with 5-10 messages each
+   - mockSmartReplies.ts: Create a set of 5-10 smart reply options
+3. Ensure data has realistic content and varied characteristics to demonstrate UI functionality
+
+# Test Strategy:
+Validate that the mock data adheres to the defined interfaces. Verify that there is sufficient variety in the data to demonstrate all UI features (qualified/unqualified calls, inbound/outbound messages, etc.). Check that timestamps are in a consistent format.
+
+# Subtasks:
+## 1. Create TypeScript Interface Definitions [done]
+### Dependencies: None
+### Description: Define the TypeScript interfaces for CallLog, SMSMessage, and SMSThread as specified in the PRD.
+### Details:
+Create a new file src/types/index.ts to define the three interfaces. Ensure all properties have appropriate types and that the interfaces match the specifications in the PRD. Export these interfaces so they can be imported by other modules.
+
+## 2. Generate Mock Call Log Data [done]
+### Dependencies: 2.1
+### Description: Create a mockCalls.ts file with 20-30 realistic call log entries using the CallLog interface.
+### Details:
+Create src/data/mockCalls.ts that exports an array of CallLog objects. Generate varied data with realistic phone numbers, timestamps from the past 30 days, durations between 30 seconds and 30 minutes, and a mix of qualified/unqualified calls. Include realistic summaries and simple transcript arrays. Use a consistent format for timestamps (ISO format) and durations (MM:SS format).
+
+## 3. Generate Mock SMS Message Data [done]
+### Dependencies: 2.1
+### Description: Create a mockSms.ts file with 10-15 SMS threads, each containing 5-10 messages using the SMSThread and SMSMessage interfaces.
+### Details:
+Create src/data/mockSms.ts that exports an array of SMSThread objects. Each thread should have a unique contactId, realistic contact information, and an array of 5-10 SMSMessage objects with varied timestamps (most recent first). Include both inbound and outbound messages with realistic content. Set appropriate unreadCount values and ensure the lastMessage and timestamp fields reflect the most recent message in each thread.
+
+## 4. Create Smart Reply Options [done]
+### Dependencies: 2.1
+### Description: Generate a set of realistic smart reply options for SMS conversations in mockSmartReplies.ts.
+### Details:
+Create src/data/mockSmartReplies.ts that exports an array of 5-10 common smart reply strings. These should be short, natural responses that would be appropriate in a business context, such as 'Thanks for your message', 'I'll get back to you shortly', 'Can we schedule a call?', etc. Consider creating categories of replies for different conversation contexts.
+
+## 5. Create Data Export Module [done]
+### Dependencies: 2.2, 2.3, 2.4
+### Description: Create an index.ts file in the data directory to centralize exports of all mock data.
+### Details:
+Create src/data/index.ts that imports and re-exports all mock data from the individual files. This will provide a single import point for components that need to use the mock data. Include any helper functions that might be useful for filtering or manipulating the mock data, such as finding a specific call by ID or filtering SMS threads by date range.
+

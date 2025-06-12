@@ -1,0 +1,239 @@
+# Task ID: 7
+# Title: Implement SMS Message Thread Panel
+# Status: done
+# Dependencies: 6
+# Priority: medium
+# Description: Create the right panel of the SMS Inbox view that displays the conversation thread with a selected contact, including banners and smart replies.
+# Details:
+1. Create a MessageThreadPanel component:
+   ```tsx
+   // src/components/sms/MessageThreadPanel.tsx
+   import React, { useState, useEffect, useRef } from 'react';
+   import { Box, Typography, Paper, TextField, Button, Chip, Divider, CircularProgress } from '@mui/material'; // Or equivalent Chakra UI components
+   import { smsService } from '../../services';
+   
+   const MessageThreadPanel = ({ contactId }) => {
+     const [thread, setThread] = useState(null);
+     const [loading, setLoading] = useState(true);
+     const [message, setMessage] = useState('');
+     const [smartReplies, setSmartReplies] = useState([]);
+     const messagesEndRef = useRef(null);
+     
+     useEffect(() => {
+       if (!contactId) {
+         setThread(null);
+         setLoading(false);
+         return;
+       }
+       
+       const fetchThread = async () => {
+         setLoading(true);
+         try {
+           const data = await smsService.getSmsThreadByContactId(contactId);
+           setThread(data);
+           
+           // Also fetch smart replies
+           const replies = await smsService.getSmartReplies();
+           setSmartReplies(replies);
+         } catch (error) {
+           console.error('Error fetching SMS thread:', error);
+         } finally {
+           setLoading(false);
+         }
+       };
+       
+       fetchThread();
+     }, [contactId]);
+     
+     useEffect(() => {
+       // Scroll to bottom when messages change
+       if (messagesEndRef.current) {
+         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+       }
+     }, [thread?.messages]);
+     
+     const handleSendMessage = async () => {
+       if (!message.trim() || !contactId) return;
+       
+       try {
+         const updatedThread = await smsService.sendMessage(contactId, message);
+         setThread(updatedThread);
+         setMessage('');
+       } catch (error) {
+         console.error('Error sending message:', error);
+       }
+     };
+     
+     const handleSmartReply = async (replyText) => {
+       if (!contactId) return;
+       
+       try {
+         const updatedThread = await smsService.sendMessage(contactId, replyText);
+         setThread(updatedThread);
+       } catch (error) {
+         console.error('Error sending smart reply:', error);
+       }
+     };
+     
+     if (loading) {
+       return (
+         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+           <CircularProgress />
+         </Box>
+       );
+     }
+     
+     if (!thread) {
+       return (
+         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+           <Typography variant="body1" color="text.secondary">
+             Select a conversation to view messages
+           </Typography>
+         </Box>
+       );
+     }
+     
+     return (
+       <Box sx={{ 
+         display: 'flex', 
+         flexDirection: 'column', 
+         height: '100%', 
+         width: '100%',
+         bgcolor: '#f5f5f5'
+       }}>
+         {/* Header */}
+         <Box sx={{ p: 2, bgcolor: 'white', boxShadow: 1 }}>
+           <Typography variant="h6">{thread.contactName}</Typography>
+           <Typography variant="body2" color="text.secondary">
+             {thread.contactNumber}
+           </Typography>
+         </Box>
+         
+         {/* Banners */}
+         {thread.twilioNumber && (
+           <Paper sx={{ m: 2, p: 1, bgcolor: '#e3f2fd' }}>
+             <Typography variant="body2">
+               Texting with Twilio number: {thread.twilioNumber}
+             </Typography>
+           </Paper>
+         )}
+         
+         {thread.callToTextContext && (
+           <Paper sx={{ m: 2, p: 1, bgcolor: '#fff8e1' }}>
+             <Typography variant="body2">
+               {thread.callToTextContext}
+             </Typography>
+           </Paper>
+         )}
+         
+         {/* Messages */}
+         <Box sx={{ 
+           flex: 1, 
+           overflowY: 'auto', 
+           p: 2, 
+           display: 'flex', 
+           flexDirection: 'column'
+         }}>
+           {thread.messages.map((msg) => (
+             <Box 
+               key={msg.id}
+               sx={{ 
+                 alignSelf: msg.direction === 'outbound' ? 'flex-end' : 'flex-start',
+                 maxWidth: '70%',
+                 mb: 1
+               }}
+             >
+               <Paper sx={{ 
+                 p: 1.5, 
+                 bgcolor: msg.direction === 'outbound' ? 'primary.main' : 'white',
+                 color: msg.direction === 'outbound' ? 'white' : 'text.primary',
+                 borderRadius: 2
+               }}>
+                 <Typography variant="body1">{msg.body}</Typography>
+               </Paper>
+               <Typography variant="caption" sx={{ ml: 1 }}>
+                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+               </Typography>
+             </Box>
+           ))}
+           <div ref={messagesEndRef} />
+         </Box>
+         
+         {/* Smart Replies */}
+         {smartReplies.length > 0 && (
+           <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+             {smartReplies.map((reply, index) => (
+               <Chip 
+                 key={index} 
+                 label={reply} 
+                 onClick={() => handleSmartReply(reply)} 
+                 clickable 
+               />
+             ))}
+           </Box>
+         )}
+         
+         <Divider />
+         
+         {/* Message Input */}
+         <Box sx={{ p: 2, bgcolor: 'white', display: 'flex' }}>
+           <TextField
+             fullWidth
+             placeholder="Type a message"
+             value={message}
+             onChange={(e) => setMessage(e.target.value)}
+             variant="outlined"
+             size="small"
+             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+           />
+           <Button 
+             variant="contained" 
+             color="primary" 
+             sx={{ ml: 1 }}
+             onClick={handleSendMessage}
+             disabled={!message.trim()}
+           >
+             Send
+           </Button>
+         </Box>
+       </Box>
+     );
+   };
+   
+   export default MessageThreadPanel;
+   ```
+
+# Test Strategy:
+Test the component with various thread data. Verify that messages display correctly with proper styling for inbound vs outbound messages. Test the message input and send functionality to ensure it updates the local state. Test smart replies to verify they can be selected and added to the conversation. Verify that banners display correctly when present in the thread data. Test scrolling behavior to ensure new messages are visible.
+
+# Subtasks:
+## 1. Create SMS Thread Header Component [done]
+### Dependencies: None
+### Description: Implement the header section of the MessageThreadPanel that displays contact information and status.
+### Details:
+Extract the header section from MessageThreadPanel into a separate component called ThreadHeader. This component should display the contact name, phone number, and online status if available. It should accept contactName and contactNumber as props and have a consistent styling with the rest of the panel.
+
+## 2. Implement Message Banners Component [done]
+### Dependencies: None
+### Description: Create a component to display contextual banners such as Twilio number information and call-to-text context.
+### Details:
+Extract the banner section into a MessageBanners component that accepts twilioNumber and callToTextContext as props. Style the banners with appropriate colors and icons to distinguish between different types of information. Implement conditional rendering so banners only appear when relevant information is available.
+
+## 3. Build Message Thread Display [done]
+### Dependencies: None
+### Description: Implement the scrollable message thread area that shows the conversation history with proper styling for inbound and outbound messages.
+### Details:
+Create a MessageList component that renders the conversation thread with proper styling for sent and received messages. Implement auto-scrolling to the most recent message. Each message should display the message body and timestamp with appropriate styling based on message direction (inbound/outbound). Use virtualization if handling large message threads for performance.
+
+## 4. Implement Smart Replies Feature [done]
+### Dependencies: None
+### Description: Create the smart replies section that displays AI-suggested quick responses that users can send with a single click.
+### Details:
+Build a SmartReplies component that displays suggested replies as clickable chips. Implement the handleSmartReply function to send the selected reply. Ensure the component has proper spacing and wrapping behavior for multiple suggestions. Add loading states for when suggestions are being fetched.
+
+## 5. Create Message Input and Send Functionality [done]
+### Dependencies: None
+### Description: Implement the message composition area with text input and send button functionality.
+### Details:
+Build a MessageComposer component with a text field for message input and a send button. Implement handleSendMessage to submit messages to the API. Add keyboard shortcuts (Enter to send) and disable the send button when the input is empty. Include appropriate loading states during message sending and error handling for failed sends.
+

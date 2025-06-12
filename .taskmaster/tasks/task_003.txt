@@ -1,0 +1,130 @@
+# Task ID: 3
+# Title: Implement Mock Service Layer
+# Status: done
+# Dependencies: 2
+# Priority: high
+# Description: Create a service layer that simulates API calls by returning promises that resolve with mock data, facilitating future integration with a real backend.
+# Details:
+1. Create a service directory with the following files:
+   ```typescript
+   // src/services/callService.ts
+   import { mockCalls } from '../data/mockCalls';
+   
+   export const callService = {
+     getCalls: () => {
+       return new Promise(resolve => {
+         setTimeout(() => resolve(mockCalls), 500); // Simulate network latency
+       });
+     },
+     getCallById: (id: string) => {
+       return new Promise(resolve => {
+         const call = mockCalls.find(call => call.id === id);
+         setTimeout(() => resolve(call), 300);
+       });
+     },
+     updateCallQualification: (id: string, isQualified: boolean) => {
+       return new Promise(resolve => {
+         const callIndex = mockCalls.findIndex(call => call.id === id);
+         if (callIndex >= 0) {
+           mockCalls[callIndex].isQualified = isQualified;
+         }
+         setTimeout(() => resolve(mockCalls[callIndex]), 200);
+       });
+     }
+   };
+   
+   // src/services/smsService.ts
+   import { mockSmsThreads } from '../data/mockSms';
+   import { mockSmartReplies } from '../data/mockSmartReplies';
+   
+   export const smsService = {
+     getSmsThreads: () => {
+       return new Promise(resolve => {
+         setTimeout(() => resolve(mockSmsThreads), 500);
+       });
+     },
+     getSmsThreadByContactId: (contactId: string) => {
+       return new Promise(resolve => {
+         const thread = mockSmsThreads.find(thread => thread.contactId === contactId);
+         setTimeout(() => resolve(thread), 300);
+       });
+     },
+     getSmartReplies: () => {
+       return new Promise(resolve => {
+         setTimeout(() => resolve(mockSmartReplies), 200);
+       });
+     },
+     sendMessage: (contactId: string, message: string) => {
+       return new Promise(resolve => {
+         const threadIndex = mockSmsThreads.findIndex(thread => thread.contactId === contactId);
+         if (threadIndex >= 0) {
+           const newMessage = {
+             id: `msg-${Date.now()}`,
+             body: message,
+             timestamp: new Date().toISOString(),
+             direction: 'outbound' as const
+           };
+           mockSmsThreads[threadIndex].messages.push(newMessage);
+           mockSmsThreads[threadIndex].lastMessage = message;
+           mockSmsThreads[threadIndex].timestamp = newMessage.timestamp;
+         }
+         setTimeout(() => resolve(mockSmsThreads[threadIndex]), 300);
+       });
+     }
+   };
+   ```
+2. Create an index file to export all services:
+   ```typescript
+   // src/services/index.ts
+   export * from './callService';
+   export * from './smsService';
+   ```
+
+# Test Strategy:
+Test each service function to ensure it returns the expected mock data with appropriate delays. Verify that update functions (like updateCallQualification and sendMessage) correctly modify the local state. Test error handling by passing invalid IDs.
+
+# Subtasks:
+## 1. Create Mock Data Files [done]
+### Dependencies: None
+### Description: Create the necessary mock data files that will be used by the service layer to simulate API responses.
+### Details:
+Create three files in the src/data directory:
+1. mockCalls.ts - Define an array of call objects with properties like id, caller, timestamp, duration, isQualified
+2. mockSms.ts - Define an array of SMS thread objects with properties like contactId, contact name, messages array, lastMessage, timestamp
+3. mockSmartReplies.ts - Define an array of suggested reply strings for SMS conversations
+
+## 2. Implement Call Service [done]
+### Dependencies: 3.1
+### Description: Create the call service module that provides methods for retrieving and manipulating call data.
+### Details:
+Implement the callService.ts file with the following methods:
+- getCalls(): Returns a promise that resolves with all mock calls after a delay
+- getCallById(id): Returns a promise that resolves with a specific call by ID
+- updateCallQualification(id, isQualified): Updates the qualification status of a call and returns the updated call
+
+## 3. Implement SMS Service [done]
+### Dependencies: 3.1
+### Description: Create the SMS service module that provides methods for retrieving and manipulating SMS thread data.
+### Details:
+Implement the smsService.ts file with the following methods:
+- getSmsThreads(): Returns a promise that resolves with all SMS threads
+- getSmsThreadByContactId(contactId): Returns a promise that resolves with a specific thread
+- getSmartReplies(): Returns a promise that resolves with suggested replies
+- sendMessage(contactId, message): Adds a new message to a thread and returns the updated thread
+
+## 4. Create Service Index File [done]
+### Dependencies: 3.2, 3.3
+### Description: Create an index file that exports all service modules to simplify imports throughout the application.
+### Details:
+Create the services/index.ts file that exports all service modules. This will allow other parts of the application to import services from a single location using: import { callService, smsService } from './services';
+
+## 5. Integrate Error Handling in Services [done]
+### Dependencies: 3.2, 3.3, 3.4
+### Description: Add error handling to all service methods to simulate API failures and network errors.
+### Details:
+Modify each service method to occasionally simulate errors:
+1. Add an optional simulateError parameter to each method
+2. When true, return a rejected promise with an appropriate error message
+3. Add a global error rate configuration (e.g., 10%) to randomly simulate errors
+4. Create appropriate error types/messages that would match real API errors
+

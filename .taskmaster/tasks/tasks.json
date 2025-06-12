@@ -1,0 +1,499 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Setup and Configuration",
+      "description": "Initialize the React project with the specified UI framework and set up the project structure for the unified communications history interface demo.",
+      "details": "1. Create a new React project using Create React App or Vite\n2. Install and configure either Material-UI or Chakra UI as specified in the PRD\n3. Set up routing using React Router for navigation between Call Logs and SMS Inbox views\n4. Configure a state management solution (React Context or Zustand as mentioned in the PRD)\n5. Create the basic folder structure:\n   - src/\n     - components/\n     - pages/\n     - data/\n     - services/\n     - context/\n     - utils/\n     - styles/\n6. Set up a basic layout component with navigation between views",
+      "testStrategy": "Verify that the project builds without errors and the basic navigation works between placeholder pages. Test that the UI framework components render correctly and that the state management solution is properly configured.",
+      "priority": "high",
+      "dependencies": [],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Initialize React Project and Install Dependencies",
+          "description": "Create a new React project using Vite and install the required UI framework and routing libraries.",
+          "dependencies": [],
+          "details": "Run `npm create vite@latest unified-comms-demo -- --template react-ts` to create a new React project with TypeScript. Then install the UI framework with `npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion` or `npm install @mui/material @emotion/react @emotion/styled`. Also install React Router with `npm install react-router-dom` and Zustand with `npm install zustand`.",
+          "status": "done",
+          "testStrategy": "Verify all dependencies are correctly installed by checking package.json and ensure the application builds without errors using `npm run build`."
+        },
+        {
+          "id": 2,
+          "title": "Create Project Folder Structure",
+          "description": "Set up the recommended folder structure for organizing components, pages, and other resources.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create the following directory structure within the src folder: components/ (for reusable UI components), pages/ (for route-specific views), data/ (for mock data), services/ (for API calls), context/ (for React Context if used), utils/ (for helper functions), and styles/ (for global styles). Add appropriate .gitkeep files to empty folders to ensure they're tracked in version control.",
+          "status": "done",
+          "testStrategy": "Manually verify all folders exist and follow the specified structure."
+        },
+        {
+          "id": 3,
+          "title": "Configure UI Framework and Global Styles",
+          "description": "Set up the chosen UI framework provider and configure global styles and theme settings.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Create a theme configuration file in src/styles/theme.js. Wrap the application in the appropriate provider component (ChakraProvider or ThemeProvider) in the main.tsx or App.tsx file. Configure theme settings like colors, typography, and spacing according to the PRD. Set up global styles for consistent appearance across the application.",
+          "status": "done",
+          "testStrategy": "Render a test component with basic UI elements to verify theme settings are applied correctly."
+        },
+        {
+          "id": 4,
+          "title": "Implement State Management Solution",
+          "description": "Set up Zustand or React Context for managing application state across components.",
+          "dependencies": [
+            2
+          ],
+          "details": "If using Zustand, create a store in src/store/index.ts with initial state for communications history data. Define actions for fetching, filtering, and updating data. If using React Context, create context providers in src/context/ with appropriate state and dispatch functions. Implement hooks for consuming the context in components.",
+          "status": "done",
+          "testStrategy": "Write a simple test that creates a store instance or uses the context, updates some state, and verifies the changes are reflected correctly."
+        },
+        {
+          "id": 5,
+          "title": "Create Layout Component with Navigation",
+          "description": "Implement a basic layout component with navigation between Call Logs and SMS Inbox views.",
+          "dependencies": [
+            3,
+            4
+          ],
+          "details": "Create a Layout component in src/components/Layout/index.tsx that includes a header, navigation menu, and content area. Implement React Router in App.tsx with routes for the Call Logs and SMS Inbox pages. Create placeholder page components in src/pages/ for these routes. Style the navigation to allow switching between views and highlight the active route.",
+          "status": "done",
+          "testStrategy": "Test navigation by clicking between routes and verifying the correct components are rendered. Check that the active route is visually indicated in the navigation."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Define and Create Mock Data",
+      "description": "Define the structure of mock data and create realistic dummy data files for calls and SMS messages to be used throughout the application.",
+      "details": "1. Create the following TypeScript interfaces based on the data models specified in the PRD:\n   ```typescript\n   interface CallLog {\n     id: string;\n     callerNumber: string;\n     dialedNumber: string;\n     timestamp: string;\n     duration: string;\n     summary: string;\n     isQualified: boolean;\n     transcript: string[];\n     recordingUrl: string;\n   }\n\n   interface SMSMessage {\n     id: string;\n     body: string;\n     timestamp: string;\n     direction: 'inbound' | 'outbound';\n   }\n\n   interface SMSThread {\n     contactId: string;\n     contactNumber: string;\n     contactName: string;\n     lastMessage: string;\n     timestamp: string;\n     unreadCount: number;\n     messages: SMSMessage[];\n     twilioNumber?: string;\n     callToTextContext?: string;\n   }\n   ```\n2. Create mock data files in src/data/:\n   - mockCalls.ts: Generate 20-30 realistic call logs with varied durations, timestamps, and qualification statuses\n   - mockSms.ts: Create 10-15 SMS threads with 5-10 messages each\n   - mockSmartReplies.ts: Create a set of 5-10 smart reply options\n3. Ensure data has realistic content and varied characteristics to demonstrate UI functionality",
+      "testStrategy": "Validate that the mock data adheres to the defined interfaces. Verify that there is sufficient variety in the data to demonstrate all UI features (qualified/unqualified calls, inbound/outbound messages, etc.). Check that timestamps are in a consistent format.",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create TypeScript Interface Definitions",
+          "description": "Define the TypeScript interfaces for CallLog, SMSMessage, and SMSThread as specified in the PRD.",
+          "dependencies": [],
+          "details": "Create a new file src/types/index.ts to define the three interfaces. Ensure all properties have appropriate types and that the interfaces match the specifications in the PRD. Export these interfaces so they can be imported by other modules.",
+          "status": "done",
+          "testStrategy": "Verify the interfaces compile without errors and match the specifications in the PRD."
+        },
+        {
+          "id": 2,
+          "title": "Generate Mock Call Log Data",
+          "description": "Create a mockCalls.ts file with 20-30 realistic call log entries using the CallLog interface.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create src/data/mockCalls.ts that exports an array of CallLog objects. Generate varied data with realistic phone numbers, timestamps from the past 30 days, durations between 30 seconds and 30 minutes, and a mix of qualified/unqualified calls. Include realistic summaries and simple transcript arrays. Use a consistent format for timestamps (ISO format) and durations (MM:SS format).",
+          "status": "done",
+          "testStrategy": "Validate that the mock data conforms to the CallLog interface and contains the required number of entries with varied characteristics."
+        },
+        {
+          "id": 3,
+          "title": "Generate Mock SMS Message Data",
+          "description": "Create a mockSms.ts file with 10-15 SMS threads, each containing 5-10 messages using the SMSThread and SMSMessage interfaces.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create src/data/mockSms.ts that exports an array of SMSThread objects. Each thread should have a unique contactId, realistic contact information, and an array of 5-10 SMSMessage objects with varied timestamps (most recent first). Include both inbound and outbound messages with realistic content. Set appropriate unreadCount values and ensure the lastMessage and timestamp fields reflect the most recent message in each thread.",
+          "status": "done",
+          "testStrategy": "Verify that the mock data conforms to the SMSThread and SMSMessage interfaces and contains the required number of threads and messages with appropriate characteristics."
+        },
+        {
+          "id": 4,
+          "title": "Create Smart Reply Options",
+          "description": "Generate a set of realistic smart reply options for SMS conversations in mockSmartReplies.ts.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create src/data/mockSmartReplies.ts that exports an array of 5-10 common smart reply strings. These should be short, natural responses that would be appropriate in a business context, such as 'Thanks for your message', 'I'll get back to you shortly', 'Can we schedule a call?', etc. Consider creating categories of replies for different conversation contexts.",
+          "status": "done",
+          "testStrategy": "Review the smart replies to ensure they are appropriate, professional, and varied enough to demonstrate the UI functionality."
+        },
+        {
+          "id": 5,
+          "title": "Create Data Export Module",
+          "description": "Create an index.ts file in the data directory to centralize exports of all mock data.",
+          "dependencies": [
+            2,
+            3,
+            4
+          ],
+          "details": "Create src/data/index.ts that imports and re-exports all mock data from the individual files. This will provide a single import point for components that need to use the mock data. Include any helper functions that might be useful for filtering or manipulating the mock data, such as finding a specific call by ID or filtering SMS threads by date range.",
+          "status": "done",
+          "testStrategy": "Verify that all mock data can be imported correctly from this central module and that any helper functions work as expected."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Implement Mock Service Layer",
+      "description": "Create a service layer that simulates API calls by returning promises that resolve with mock data, facilitating future integration with a real backend.",
+      "details": "1. Create a service directory with the following files:\n   ```typescript\n   // src/services/callService.ts\n   import { mockCalls } from '../data/mockCalls';\n   \n   export const callService = {\n     getCalls: () => {\n       return new Promise(resolve => {\n         setTimeout(() => resolve(mockCalls), 500); // Simulate network latency\n       });\n     },\n     getCallById: (id: string) => {\n       return new Promise(resolve => {\n         const call = mockCalls.find(call => call.id === id);\n         setTimeout(() => resolve(call), 300);\n       });\n     },\n     updateCallQualification: (id: string, isQualified: boolean) => {\n       return new Promise(resolve => {\n         const callIndex = mockCalls.findIndex(call => call.id === id);\n         if (callIndex >= 0) {\n           mockCalls[callIndex].isQualified = isQualified;\n         }\n         setTimeout(() => resolve(mockCalls[callIndex]), 200);\n       });\n     }\n   };\n   \n   // src/services/smsService.ts\n   import { mockSmsThreads } from '../data/mockSms';\n   import { mockSmartReplies } from '../data/mockSmartReplies';\n   \n   export const smsService = {\n     getSmsThreads: () => {\n       return new Promise(resolve => {\n         setTimeout(() => resolve(mockSmsThreads), 500);\n       });\n     },\n     getSmsThreadByContactId: (contactId: string) => {\n       return new Promise(resolve => {\n         const thread = mockSmsThreads.find(thread => thread.contactId === contactId);\n         setTimeout(() => resolve(thread), 300);\n       });\n     },\n     getSmartReplies: () => {\n       return new Promise(resolve => {\n         setTimeout(() => resolve(mockSmartReplies), 200);\n       });\n     },\n     sendMessage: (contactId: string, message: string) => {\n       return new Promise(resolve => {\n         const threadIndex = mockSmsThreads.findIndex(thread => thread.contactId === contactId);\n         if (threadIndex >= 0) {\n           const newMessage = {\n             id: `msg-${Date.now()}`,\n             body: message,\n             timestamp: new Date().toISOString(),\n             direction: 'outbound' as const\n           };\n           mockSmsThreads[threadIndex].messages.push(newMessage);\n           mockSmsThreads[threadIndex].lastMessage = message;\n           mockSmsThreads[threadIndex].timestamp = newMessage.timestamp;\n         }\n         setTimeout(() => resolve(mockSmsThreads[threadIndex]), 300);\n       });\n     }\n   };\n   ```\n2. Create an index file to export all services:\n   ```typescript\n   // src/services/index.ts\n   export * from './callService';\n   export * from './smsService';\n   ```",
+      "testStrategy": "Test each service function to ensure it returns the expected mock data with appropriate delays. Verify that update functions (like updateCallQualification and sendMessage) correctly modify the local state. Test error handling by passing invalid IDs.",
+      "priority": "high",
+      "dependencies": [
+        2
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Mock Data Files",
+          "description": "Create the necessary mock data files that will be used by the service layer to simulate API responses.",
+          "dependencies": [],
+          "details": "Create three files in the src/data directory:\n1. mockCalls.ts - Define an array of call objects with properties like id, caller, timestamp, duration, isQualified\n2. mockSms.ts - Define an array of SMS thread objects with properties like contactId, contact name, messages array, lastMessage, timestamp\n3. mockSmartReplies.ts - Define an array of suggested reply strings for SMS conversations",
+          "status": "done",
+          "testStrategy": "Verify the mock data structure matches the expected schema that would be returned by a real API."
+        },
+        {
+          "id": 2,
+          "title": "Implement Call Service",
+          "description": "Create the call service module that provides methods for retrieving and manipulating call data.",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement the callService.ts file with the following methods:\n- getCalls(): Returns a promise that resolves with all mock calls after a delay\n- getCallById(id): Returns a promise that resolves with a specific call by ID\n- updateCallQualification(id, isQualified): Updates the qualification status of a call and returns the updated call",
+          "status": "done",
+          "testStrategy": "Test each method by calling it and verifying the returned promises resolve with the expected data. Check that delays are working and that the updateCallQualification method correctly modifies the data."
+        },
+        {
+          "id": 3,
+          "title": "Implement SMS Service",
+          "description": "Create the SMS service module that provides methods for retrieving and manipulating SMS thread data.",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement the smsService.ts file with the following methods:\n- getSmsThreads(): Returns a promise that resolves with all SMS threads\n- getSmsThreadByContactId(contactId): Returns a promise that resolves with a specific thread\n- getSmartReplies(): Returns a promise that resolves with suggested replies\n- sendMessage(contactId, message): Adds a new message to a thread and returns the updated thread",
+          "status": "done",
+          "testStrategy": "Test each method by calling it and verifying the returned promises resolve with the expected data. For sendMessage, verify that the new message is correctly added to the thread with proper timestamp and direction."
+        },
+        {
+          "id": 4,
+          "title": "Create Service Index File",
+          "description": "Create an index file that exports all service modules to simplify imports throughout the application.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "Create the services/index.ts file that exports all service modules. This will allow other parts of the application to import services from a single location using: import { callService, smsService } from './services';",
+          "status": "done",
+          "testStrategy": "Verify that all services can be correctly imported from the index file in another module."
+        },
+        {
+          "id": 5,
+          "title": "Integrate Error Handling in Services",
+          "description": "Add error handling to all service methods to simulate API failures and network errors.",
+          "dependencies": [
+            2,
+            3,
+            4
+          ],
+          "details": "Modify each service method to occasionally simulate errors:\n1. Add an optional simulateError parameter to each method\n2. When true, return a rejected promise with an appropriate error message\n3. Add a global error rate configuration (e.g., 10%) to randomly simulate errors\n4. Create appropriate error types/messages that would match real API errors",
+          "status": "done",
+          "testStrategy": "Test error scenarios by forcing errors and verifying that promises are rejected with the expected error messages. Test the random error simulation by calling methods multiple times and confirming errors occur at approximately the configured rate."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Implement Call Logs Table Component",
+      "description": "Build the filterable and sortable table component for the Call Logs dashboard that displays the chronological history of all calls.",
+      "details": "1. Create a CallLogsTable component:\n   ```tsx\n   // src/components/calls/CallLogsTable.tsx\n   import React, { useState, useEffect } from 'react';\n   import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, TextField, Select, MenuItem } from '@mui/material'; // Or equivalent Chakra UI components\n   import { callService } from '../../services';\n   \n   const CallLogsTable = ({ onRowClick }) => {\n     const [calls, setCalls] = useState([]);\n     const [loading, setLoading] = useState(true);\n     const [filter, setFilter] = useState('');\n     const [sortField, setSortField] = useState('timestamp');\n     const [sortDirection, setSortDirection] = useState('desc');\n     \n     useEffect(() => {\n       const fetchCalls = async () => {\n         try {\n           const data = await callService.getCalls();\n           setCalls(data);\n         } catch (error) {\n           console.error('Error fetching calls:', error);\n         } finally {\n           setLoading(false);\n         }\n       };\n       \n       fetchCalls();\n     }, []);\n     \n     const handleSort = (field) => {\n       if (sortField === field) {\n         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');\n       } else {\n         setSortField(field);\n         setSortDirection('asc');\n       }\n     };\n     \n     const filteredCalls = calls.filter(call => \n       call.callerNumber.includes(filter) || \n       call.dialedNumber.includes(filter) ||\n       call.summary.toLowerCase().includes(filter.toLowerCase())\n     );\n     \n     const sortedCalls = [...filteredCalls].sort((a, b) => {\n       if (sortField === 'timestamp') {\n         return sortDirection === 'asc' \n           ? new Date(a.timestamp) - new Date(b.timestamp)\n           : new Date(b.timestamp) - new Date(a.timestamp);\n       }\n       // Add other sort fields as needed\n       return 0;\n     });\n     \n     return (\n       <div>\n         <div className=\"filters\">\n           <TextField \n             label=\"Filter\" \n             value={filter} \n             onChange={(e) => setFilter(e.target.value)} \n             placeholder=\"Search by number or summary\"\n           />\n           <Select\n             value={sortField}\n             onChange={(e) => setSortField(e.target.value)}\n           >\n             <MenuItem value=\"timestamp\">Date/Time</MenuItem>\n             <MenuItem value=\"duration\">Duration</MenuItem>\n             <MenuItem value=\"callerNumber\">Caller Number</MenuItem>\n           </Select>\n           <Select\n             value={sortDirection}\n             onChange={(e) => setSortDirection(e.target.value)}\n           >\n             <MenuItem value=\"asc\">Ascending</MenuItem>\n             <MenuItem value=\"desc\">Descending</MenuItem>\n           </Select>\n         </div>\n         \n         {loading ? (\n           <div>Loading calls...</div>\n         ) : (\n           <TableContainer component={Paper}>\n             <Table>\n               <TableHead>\n                 <TableRow>\n                   <TableCell onClick={() => handleSort('callerNumber')}>Caller Number</TableCell>\n                   <TableCell onClick={() => handleSort('dialedNumber')}>Dialed Number</TableCell>\n                   <TableCell onClick={() => handleSort('timestamp')}>Date/Time</TableCell>\n                   <TableCell onClick={() => handleSort('duration')}>Duration</TableCell>\n                   <TableCell>AI Summary</TableCell>\n                   <TableCell onClick={() => handleSort('isQualified')}>Qualified</TableCell>\n                 </TableRow>\n               </TableHead>\n               <TableBody>\n                 {sortedCalls.map((call) => (\n                   <TableRow key={call.id} onClick={() => onRowClick(call)} style={{ cursor: 'pointer' }}>\n                     <TableCell>{call.callerNumber}</TableCell>\n                     <TableCell>{call.dialedNumber}</TableCell>\n                     <TableCell>{new Date(call.timestamp).toLocaleString()}</TableCell>\n                     <TableCell>{call.duration}</TableCell>\n                     <TableCell>{call.summary}</TableCell>\n                     <TableCell>{call.isQualified ? 'Yes' : 'No'}</TableCell>\n                   </TableRow>\n                 ))}\n               </TableBody>\n             </Table>\n           </TableContainer>\n         )}\n       </div>\n     );\n   };\n   \n   export default CallLogsTable;\n   ```\n2. Create a CallLogsPage component that uses the table:\n   ```tsx\n   // src/pages/CallLogsPage.tsx\n   import React, { useState } from 'react';\n   import CallLogsTable from '../components/calls/CallLogsTable';\n   \n   const CallLogsPage = () => {\n     const [selectedCall, setSelectedCall] = useState(null);\n     \n     const handleRowClick = (call) => {\n       setSelectedCall(call);\n       // Will open modal in next task\n     };\n     \n     return (\n       <div className=\"call-logs-page\">\n         <h1>Call Logs</h1>\n         <CallLogsTable onRowClick={handleRowClick} />\n       </div>\n     );\n   };\n   \n   export default CallLogsPage;\n   ```",
+      "testStrategy": "Test the table component with various mock data scenarios. Verify that filtering works correctly for different search terms. Test sorting functionality for each column. Ensure the loading state displays correctly. Verify that clicking a row triggers the onRowClick callback with the correct call data.",
+      "priority": "medium",
+      "dependencies": [
+        3
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement Call Service API Integration",
+          "description": "Create the call service with methods to fetch call data from the backend API.",
+          "dependencies": [],
+          "details": "Create a service file at src/services/callService.ts that exports functions for API calls. Implement the getCalls() method to fetch call logs from the backend. Include error handling, response parsing, and appropriate TypeScript interfaces for call data. The service should handle pagination if the API supports it.",
+          "status": "done",
+          "testStrategy": "Write unit tests using Jest to mock API responses and test error handling scenarios."
+        },
+        {
+          "id": 2,
+          "title": "Build Core Table Component Structure",
+          "description": "Implement the basic structure of the CallLogsTable component with data fetching and display.",
+          "dependencies": [],
+          "details": "Create the CallLogsTable component with initial state setup, data fetching via useEffect, and basic table rendering. Implement the table structure with headers and rows displaying call data. Use Material UI components as specified. Ensure proper loading state handling while data is being fetched.",
+          "status": "done",
+          "testStrategy": "Create component tests to verify the table renders correctly with mock data and displays loading state appropriately."
+        },
+        {
+          "id": 3,
+          "title": "Implement Filtering Functionality",
+          "description": "Add filtering capabilities to the CallLogsTable to allow users to search for specific calls.",
+          "dependencies": [],
+          "details": "Enhance the CallLogsTable component with filter input field and filtering logic. Implement the filter state and onChange handler. Create the filteredCalls logic to filter based on callerNumber, dialedNumber, and summary fields. Ensure the filter is case-insensitive for text fields and updates the table in real-time as users type.",
+          "status": "done",
+          "testStrategy": "Test filtering functionality with various search terms to ensure it correctly filters the displayed calls."
+        },
+        {
+          "id": 4,
+          "title": "Implement Sorting Functionality",
+          "description": "Add column sorting capabilities to allow users to sort the call logs by different fields.",
+          "dependencies": [],
+          "details": "Implement the sorting mechanism with sortField and sortDirection state variables. Create the handleSort function to toggle sort direction when clicking the same column or set a new sort field. Implement the sortedCalls logic to sort the filtered data based on the selected field and direction. Add visual indicators in column headers to show the current sort field and direction.",
+          "status": "done",
+          "testStrategy": "Test sorting functionality by clicking on different column headers and verifying the order of displayed calls changes accordingly."
+        },
+        {
+          "id": 5,
+          "title": "Create Call Logs Page with Row Selection",
+          "description": "Implement the CallLogsPage component that uses the table and handles row selection for future detail view.",
+          "dependencies": [],
+          "details": "Create the CallLogsPage component that imports and renders the CallLogsTable. Implement the selectedCall state and handleRowClick function to track which call is selected. Add styling to highlight the selected row in the table. Prepare the component structure for the future call detail modal that will be implemented in a subsequent task.",
+          "status": "done",
+          "testStrategy": "Test the page component renders correctly and that clicking on a row properly updates the selected call state."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Implement Call Detail Modal",
+      "description": "Create a modal component that displays detailed information about a selected call, including a placeholder audio player, transcript, summary, and qualification toggle.",
+      "details": "1. Create a CallDetailModal component:\n   ```tsx\n   // src/components/calls/CallDetailModal.tsx\n   import React, { useState } from 'react';\n   import { Modal, Box, Typography, Button, Switch, FormControlLabel, Paper } from '@mui/material'; // Or equivalent Chakra UI components\n   import { useNavigate } from 'react-router-dom';\n   import { callService } from '../../services';\n   \n   const CallDetailModal = ({ call, open, onClose, onQualificationChange }) => {\n     const [isQualified, setIsQualified] = useState(call?.isQualified || false);\n     const navigate = useNavigate();\n     \n     if (!call) return null;\n     \n     const handleQualificationToggle = async () => {\n       const newValue = !isQualified;\n       setIsQualified(newValue);\n       \n       try {\n         await callService.updateCallQualification(call.id, newValue);\n         if (onQualificationChange) {\n           onQualificationChange(call.id, newValue);\n         }\n       } catch (error) {\n         console.error('Error updating qualification:', error);\n         // Revert UI state on error\n         setIsQualified(!newValue);\n       }\n     };\n     \n     const handleOpenChat = () => {\n       // Extract contactId from the call data - in a real app, this would be more robust\n       const contactId = call.callerNumber.replace(/\\D/g, '');\n       navigate(`/sms/${contactId}`);\n       onClose();\n     };\n     \n     return (\n       <Modal open={open} onClose={onClose}>\n         <Box sx={{ \n           position: 'absolute', \n           top: '50%', \n           left: '50%', \n           transform: 'translate(-50%, -50%)', \n           width: '80%', \n           maxWidth: 800,\n           bgcolor: 'background.paper', \n           boxShadow: 24, \n           p: 4,\n           maxHeight: '90vh',\n           overflow: 'auto'\n         }}>\n           <Typography variant=\"h5\" component=\"h2\">\n             Call Details\n           </Typography>\n           \n           <Box sx={{ mt: 2 }}>\n             <Typography variant=\"subtitle1\">\n               {call.callerNumber} → {call.dialedNumber}\n             </Typography>\n             <Typography variant=\"body2\">\n               {new Date(call.timestamp).toLocaleString()} • {call.duration}\n             </Typography>\n           </Box>\n           \n           {/* Placeholder Audio Player */}\n           <Paper sx={{ p: 2, mt: 3, bgcolor: '#f5f5f5' }}>\n             <Typography variant=\"subtitle2\">Call Recording</Typography>\n             <Box sx={{ \n               display: 'flex', \n               alignItems: 'center', \n               justifyContent: 'space-between',\n               mt: 1\n             }}>\n               <Button variant=\"contained\" size=\"small\">▶ Play</Button>\n               <div style={{ flex: 1, height: 4, margin: '0 10px', backgroundColor: '#ddd' }} />\n               <Typography variant=\"caption\">00:00 / {call.duration}</Typography>\n             </Box>\n           </Paper>\n           \n           {/* Transcript */}\n           <Box sx={{ mt: 3 }}>\n             <Typography variant=\"subtitle2\">Transcript</Typography>\n             <Paper sx={{ p: 2, mt: 1, maxHeight: 200, overflow: 'auto' }}>\n               {call.transcript.map((line, index) => (\n                 <Typography key={index} variant=\"body2\" sx={{ mb: 1 }}>\n                   {line}\n                 </Typography>\n               ))}\n             </Paper>\n           </Box>\n           \n           {/* Summary */}\n           <Box sx={{ mt: 3 }}>\n             <Typography variant=\"subtitle2\">AI Summary</Typography>\n             <Paper sx={{ p: 2, mt: 1 }}>\n               <Typography variant=\"body2\">{call.summary}</Typography>\n             </Paper>\n           </Box>\n           \n           {/* Actions */}\n           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>\n             <FormControlLabel\n               control={\n                 <Switch \n                   checked={isQualified} \n                   onChange={handleQualificationToggle} \n                 />\n               }\n               label=\"Qualified Lead\"\n             />\n             \n             <Button \n               variant=\"contained\" \n               color=\"primary\" \n               onClick={handleOpenChat}\n             >\n               Open Chat\n             </Button>\n           </Box>\n         </Box>\n       </Modal>\n     );\n   };\n   \n   export default CallDetailModal;\n   ```\n2. Update the CallLogsPage to use the modal:\n   ```tsx\n   // src/pages/CallLogsPage.tsx (updated)\n   import React, { useState } from 'react';\n   import CallLogsTable from '../components/calls/CallLogsTable';\n   import CallDetailModal from '../components/calls/CallDetailModal';\n   \n   const CallLogsPage = () => {\n     const [selectedCall, setSelectedCall] = useState(null);\n     const [modalOpen, setModalOpen] = useState(false);\n     \n     const handleRowClick = (call) => {\n       setSelectedCall(call);\n       setModalOpen(true);\n     };\n     \n     const handleModalClose = () => {\n       setModalOpen(false);\n     };\n     \n     const handleQualificationChange = (callId, isQualified) => {\n       // In a real app with a backend, this would trigger a refresh of the data\n       // For this demo, we'll update the UI directly\n       setSelectedCall(prev => prev ? {...prev, isQualified} : null);\n     };\n     \n     return (\n       <div className=\"call-logs-page\">\n         <h1>Call Logs</h1>\n         <CallLogsTable onRowClick={handleRowClick} />\n         <CallDetailModal \n           call={selectedCall} \n           open={modalOpen} \n           onClose={handleModalClose} \n           onQualificationChange={handleQualificationChange}\n         />\n       </div>\n     );\n   };\n   \n   export default CallLogsPage;\n   ```",
+      "testStrategy": "Test the modal with various call data. Verify that all sections (audio player placeholder, transcript, summary) display correctly. Test the qualification toggle to ensure it updates the local state. Test the 'Open Chat' button to verify it navigates to the correct SMS thread. Verify that the modal closes properly.",
+      "priority": "medium",
+      "dependencies": [
+        4
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create CallDetailModal component structure",
+          "description": "Set up the basic structure of the CallDetailModal component with the modal container, header, and call metadata display.",
+          "dependencies": [],
+          "details": "Create the CallDetailModal.tsx file in the components/calls directory. Implement the component with React and Material UI, including the modal wrapper, positioning styles, and basic call information display (caller/dialed numbers and timestamp). Set up the component props interface and state management for the modal open/close functionality.",
+          "status": "done",
+          "testStrategy": "Test that the modal renders correctly with sample call data and that it opens and closes as expected."
+        },
+        {
+          "id": 2,
+          "title": "Implement audio player placeholder",
+          "description": "Add a placeholder audio player UI component to the modal that displays the call duration and play controls.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create a Paper component with play button, progress bar, and duration display. This will be a non-functional UI placeholder that shows the call duration from the call object. Style it to look like a standard audio player with appropriate spacing and visual hierarchy.",
+          "status": "done",
+          "testStrategy": "Verify that the audio player displays correctly with the call duration and that the UI elements are properly positioned."
+        },
+        {
+          "id": 3,
+          "title": "Add transcript and summary sections",
+          "description": "Implement the transcript and AI summary sections of the modal to display call content.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create two separate sections in the modal: one for the transcript and one for the AI summary. The transcript section should map through the call.transcript array and render each line with appropriate styling. The summary section should display the call.summary text. Both sections should be contained in Paper components with proper headings and scrollable content areas where needed.",
+          "status": "done",
+          "testStrategy": "Test with various lengths of transcript and summary content to ensure proper scrolling behavior and layout consistency."
+        },
+        {
+          "id": 4,
+          "title": "Implement qualification toggle functionality",
+          "description": "Add the ability to mark a call as a qualified lead with a toggle switch and implement the state management and API call.",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement the handleQualificationToggle function that updates the local state and makes an API call to callService.updateCallQualification. Add error handling to revert the UI state if the API call fails. Create the FormControlLabel with Switch component that displays the current qualification status and allows toggling.",
+          "status": "done",
+          "testStrategy": "Test the toggle functionality with both successful and failed API responses. Verify that the UI updates correctly and that error handling works as expected."
+        },
+        {
+          "id": 5,
+          "title": "Integrate modal with CallLogsPage",
+          "description": "Update the CallLogsPage component to use the CallDetailModal and handle row clicks and qualification changes.",
+          "dependencies": [
+            1,
+            4
+          ],
+          "details": "Modify the CallLogsPage component to maintain state for the selected call and modal open status. Implement the handleRowClick function to set the selected call and open the modal. Add the handleModalClose function to close the modal. Implement handleQualificationChange to update the UI when a call's qualification status changes. Add the CallDetailModal component to the page with the appropriate props.",
+          "status": "done",
+          "testStrategy": "Test the integration by clicking on rows in the call logs table and verifying that the modal opens with the correct call data. Test that qualification changes in the modal are reflected in the table after closing the modal."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Implement SMS Inbox Contact List Panel",
+      "description": "Create the left panel of the SMS Inbox view that displays a list of contacts with their most recent message and allows selection to view the conversation thread.",
+      "details": "1. Create a ContactListPanel component:\n   ```tsx\n   // src/components/sms/ContactListPanel.tsx\n   import React, { useState, useEffect } from 'react';\n   import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Box, TextField, CircularProgress } from '@mui/material'; // Or equivalent Chakra UI components\n   import { smsService } from '../../services';\n   \n   const ContactListPanel = ({ onContactSelect, selectedContactId }) => {\n     const [threads, setThreads] = useState([]);\n     const [loading, setLoading] = useState(true);\n     const [searchTerm, setSearchTerm] = useState('');\n     \n     useEffect(() => {\n       const fetchThreads = async () => {\n         try {\n           const data = await smsService.getSmsThreads();\n           setThreads(data);\n         } catch (error) {\n           console.error('Error fetching SMS threads:', error);\n         } finally {\n           setLoading(false);\n         }\n       };\n       \n       fetchThreads();\n     }, []);\n     \n     const filteredThreads = threads.filter(thread => \n       thread.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||\n       thread.contactNumber.includes(searchTerm)\n     );\n     \n     // Sort threads by timestamp (most recent first)\n     const sortedThreads = [...filteredThreads].sort((a, b) => \n       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()\n     );\n     \n     return (\n       <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>\n         <Box sx={{ p: 2 }}>\n           <TextField\n             fullWidth\n             placeholder=\"Search contacts\"\n             value={searchTerm}\n             onChange={(e) => setSearchTerm(e.target.value)}\n             variant=\"outlined\"\n             size=\"small\"\n           />\n         </Box>\n         \n         {loading ? (\n           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>\n             <CircularProgress />\n           </Box>\n         ) : (\n           <List sx={{ overflow: 'auto', flex: 1 }}>\n             {sortedThreads.map((thread) => (\n               <ListItem \n                 key={thread.contactId} \n                 button \n                 selected={selectedContactId === thread.contactId}\n                 onClick={() => onContactSelect(thread.contactId)}\n                 sx={{\n                   borderLeft: selectedContactId === thread.contactId ? '4px solid #1976d2' : 'none',\n                   bgcolor: selectedContactId === thread.contactId ? 'rgba(25, 118, 210, 0.08)' : 'transparent'\n                 }}\n               >\n                 <ListItemAvatar>\n                   <Avatar>{thread.contactName.charAt(0)}</Avatar>\n                 </ListItemAvatar>\n                 <ListItemText\n                   primary={\n                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>\n                       <Typography variant=\"subtitle2\" noWrap>\n                         {thread.contactName}\n                       </Typography>\n                       <Typography variant=\"caption\" color=\"text.secondary\">\n                         {new Date(thread.timestamp).toLocaleDateString()}\n                       </Typography>\n                     </Box>\n                   }\n                   secondary={\n                     <Box>\n                       <Typography variant=\"body2\" noWrap color=\"text.secondary\">\n                         {thread.lastMessage}\n                       </Typography>\n                       {thread.unreadCount > 0 && (\n                         <Box \n                           component=\"span\" \n                           sx={{ \n                             display: 'inline-block',\n                             bgcolor: 'primary.main',\n                             color: 'white',\n                             borderRadius: '50%',\n                             width: 20,\n                             height: 20,\n                             textAlign: 'center',\n                             lineHeight: '20px',\n                             fontSize: '0.75rem',\n                             ml: 1\n                           }}\n                         >\n                           {thread.unreadCount}\n                         </Box>\n                       )}\n                     </Box>\n                   }\n                 />\n               </ListItem>\n             ))}\n           </List>\n         )}\n       </Box>\n     );\n   };\n   \n   export default ContactListPanel;\n   ```",
+      "testStrategy": "Test the component with various mock data scenarios. Verify that the contact list displays correctly with contact names, last messages, and timestamps. Test the search functionality to ensure it filters contacts correctly. Verify that selecting a contact triggers the onContactSelect callback with the correct contactId. Test the loading state display.",
+      "priority": "medium",
+      "dependencies": [
+        3
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create SMS Service Interface",
+          "description": "Implement the SMS service interface that will handle fetching SMS threads and messages from the backend.",
+          "dependencies": [],
+          "details": "Create a service file at src/services/smsService.ts that exports functions for fetching SMS threads and messages. Implement the getSmsThreads() method that returns a Promise with thread data including contactId, contactName, contactNumber, lastMessage, timestamp, and unreadCount. Add error handling and appropriate typing.",
+          "status": "done",
+          "testStrategy": "Write unit tests using Jest to mock API responses and test the service functions."
+        },
+        {
+          "id": 2,
+          "title": "Implement Contact List UI Components",
+          "description": "Build the UI components for the contact list panel including list items, avatars, and text formatting.",
+          "dependencies": [],
+          "details": "Refine the ContactListPanel component with proper styling and layout. Ensure the avatar, contact name, timestamp, last message preview, and unread count badge are properly styled and positioned. Implement responsive design considerations for different screen sizes.",
+          "status": "done",
+          "testStrategy": "Create snapshot tests for the UI components and test different states (selected/unselected, with/without unread messages)."
+        },
+        {
+          "id": 3,
+          "title": "Add Search and Filtering Functionality",
+          "description": "Implement the search functionality to filter contacts by name or phone number.",
+          "dependencies": [],
+          "details": "Enhance the search input field to filter the contact list in real-time as the user types. Optimize the filtering logic to handle large contact lists efficiently. Add debounce functionality to prevent excessive re-renders during typing.",
+          "status": "done",
+          "testStrategy": "Test search functionality with various inputs including partial matches, case sensitivity, and special characters."
+        },
+        {
+          "id": 4,
+          "title": "Implement Contact Selection and State Management",
+          "description": "Create the state management logic for selecting contacts and highlighting the selected contact in the list.",
+          "dependencies": [],
+          "details": "Implement the onContactSelect handler to manage the selected contact state. Add visual indicators for the selected contact including the left border highlight and background color change. Ensure the selection state persists when filtering or searching contacts.",
+          "status": "done",
+          "testStrategy": "Write tests for selection state changes, including selecting a contact, then filtering the list, and ensuring selection state is maintained."
+        },
+        {
+          "id": 5,
+          "title": "Add Loading States and Error Handling",
+          "description": "Implement loading indicators and error handling for the contact list panel.",
+          "dependencies": [],
+          "details": "Add a loading spinner when fetching contact data. Implement error handling to display appropriate error messages when the API calls fail. Add retry functionality for failed API calls. Implement empty state UI when no contacts are available or when search returns no results.",
+          "status": "done",
+          "testStrategy": "Test loading states by mocking delayed API responses. Test error handling by forcing API failures and verifying error messages are displayed correctly."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Implement SMS Message Thread Panel",
+      "description": "Create the right panel of the SMS Inbox view that displays the conversation thread with a selected contact, including banners and smart replies.",
+      "details": "1. Create a MessageThreadPanel component:\n   ```tsx\n   // src/components/sms/MessageThreadPanel.tsx\n   import React, { useState, useEffect, useRef } from 'react';\n   import { Box, Typography, Paper, TextField, Button, Chip, Divider, CircularProgress } from '@mui/material'; // Or equivalent Chakra UI components\n   import { smsService } from '../../services';\n   \n   const MessageThreadPanel = ({ contactId }) => {\n     const [thread, setThread] = useState(null);\n     const [loading, setLoading] = useState(true);\n     const [message, setMessage] = useState('');\n     const [smartReplies, setSmartReplies] = useState([]);\n     const messagesEndRef = useRef(null);\n     \n     useEffect(() => {\n       if (!contactId) {\n         setThread(null);\n         setLoading(false);\n         return;\n       }\n       \n       const fetchThread = async () => {\n         setLoading(true);\n         try {\n           const data = await smsService.getSmsThreadByContactId(contactId);\n           setThread(data);\n           \n           // Also fetch smart replies\n           const replies = await smsService.getSmartReplies();\n           setSmartReplies(replies);\n         } catch (error) {\n           console.error('Error fetching SMS thread:', error);\n         } finally {\n           setLoading(false);\n         }\n       };\n       \n       fetchThread();\n     }, [contactId]);\n     \n     useEffect(() => {\n       // Scroll to bottom when messages change\n       if (messagesEndRef.current) {\n         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });\n       }\n     }, [thread?.messages]);\n     \n     const handleSendMessage = async () => {\n       if (!message.trim() || !contactId) return;\n       \n       try {\n         const updatedThread = await smsService.sendMessage(contactId, message);\n         setThread(updatedThread);\n         setMessage('');\n       } catch (error) {\n         console.error('Error sending message:', error);\n       }\n     };\n     \n     const handleSmartReply = async (replyText) => {\n       if (!contactId) return;\n       \n       try {\n         const updatedThread = await smsService.sendMessage(contactId, replyText);\n         setThread(updatedThread);\n       } catch (error) {\n         console.error('Error sending smart reply:', error);\n       }\n     };\n     \n     if (loading) {\n       return (\n         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>\n           <CircularProgress />\n         </Box>\n       );\n     }\n     \n     if (!thread) {\n       return (\n         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>\n           <Typography variant=\"body1\" color=\"text.secondary\">\n             Select a conversation to view messages\n           </Typography>\n         </Box>\n       );\n     }\n     \n     return (\n       <Box sx={{ \n         display: 'flex', \n         flexDirection: 'column', \n         height: '100%', \n         width: '100%',\n         bgcolor: '#f5f5f5'\n       }}>\n         {/* Header */}\n         <Box sx={{ p: 2, bgcolor: 'white', boxShadow: 1 }}>\n           <Typography variant=\"h6\">{thread.contactName}</Typography>\n           <Typography variant=\"body2\" color=\"text.secondary\">\n             {thread.contactNumber}\n           </Typography>\n         </Box>\n         \n         {/* Banners */}\n         {thread.twilioNumber && (\n           <Paper sx={{ m: 2, p: 1, bgcolor: '#e3f2fd' }}>\n             <Typography variant=\"body2\">\n               Texting with Twilio number: {thread.twilioNumber}\n             </Typography>\n           </Paper>\n         )}\n         \n         {thread.callToTextContext && (\n           <Paper sx={{ m: 2, p: 1, bgcolor: '#fff8e1' }}>\n             <Typography variant=\"body2\">\n               {thread.callToTextContext}\n             </Typography>\n           </Paper>\n         )}\n         \n         {/* Messages */}\n         <Box sx={{ \n           flex: 1, \n           overflowY: 'auto', \n           p: 2, \n           display: 'flex', \n           flexDirection: 'column'\n         }}>\n           {thread.messages.map((msg) => (\n             <Box \n               key={msg.id}\n               sx={{ \n                 alignSelf: msg.direction === 'outbound' ? 'flex-end' : 'flex-start',\n                 maxWidth: '70%',\n                 mb: 1\n               }}\n             >\n               <Paper sx={{ \n                 p: 1.5, \n                 bgcolor: msg.direction === 'outbound' ? 'primary.main' : 'white',\n                 color: msg.direction === 'outbound' ? 'white' : 'text.primary',\n                 borderRadius: 2\n               }}>\n                 <Typography variant=\"body1\">{msg.body}</Typography>\n               </Paper>\n               <Typography variant=\"caption\" sx={{ ml: 1 }}>\n                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\n               </Typography>\n             </Box>\n           ))}\n           <div ref={messagesEndRef} />\n         </Box>\n         \n         {/* Smart Replies */}\n         {smartReplies.length > 0 && (\n           <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>\n             {smartReplies.map((reply, index) => (\n               <Chip \n                 key={index} \n                 label={reply} \n                 onClick={() => handleSmartReply(reply)} \n                 clickable \n               />\n             ))}\n           </Box>\n         )}\n         \n         <Divider />\n         \n         {/* Message Input */}\n         <Box sx={{ p: 2, bgcolor: 'white', display: 'flex' }}>\n           <TextField\n             fullWidth\n             placeholder=\"Type a message\"\n             value={message}\n             onChange={(e) => setMessage(e.target.value)}\n             variant=\"outlined\"\n             size=\"small\"\n             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}\n           />\n           <Button \n             variant=\"contained\" \n             color=\"primary\" \n             sx={{ ml: 1 }}\n             onClick={handleSendMessage}\n             disabled={!message.trim()}\n           >\n             Send\n           </Button>\n         </Box>\n       </Box>\n     );\n   };\n   \n   export default MessageThreadPanel;\n   ```",
+      "testStrategy": "Test the component with various thread data. Verify that messages display correctly with proper styling for inbound vs outbound messages. Test the message input and send functionality to ensure it updates the local state. Test smart replies to verify they can be selected and added to the conversation. Verify that banners display correctly when present in the thread data. Test scrolling behavior to ensure new messages are visible.",
+      "priority": "medium",
+      "dependencies": [
+        6
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create SMS Thread Header Component",
+          "description": "Implement the header section of the MessageThreadPanel that displays contact information and status.",
+          "dependencies": [],
+          "details": "Extract the header section from MessageThreadPanel into a separate component called ThreadHeader. This component should display the contact name, phone number, and online status if available. It should accept contactName and contactNumber as props and have a consistent styling with the rest of the panel.",
+          "status": "done",
+          "testStrategy": "Test rendering with different contact information and verify all elements are displayed correctly."
+        },
+        {
+          "id": 2,
+          "title": "Implement Message Banners Component",
+          "description": "Create a component to display contextual banners such as Twilio number information and call-to-text context.",
+          "dependencies": [],
+          "details": "Extract the banner section into a MessageBanners component that accepts twilioNumber and callToTextContext as props. Style the banners with appropriate colors and icons to distinguish between different types of information. Implement conditional rendering so banners only appear when relevant information is available.",
+          "status": "done",
+          "testStrategy": "Test conditional rendering with various combinations of banner data and verify styling is applied correctly."
+        },
+        {
+          "id": 3,
+          "title": "Build Message Thread Display",
+          "description": "Implement the scrollable message thread area that shows the conversation history with proper styling for inbound and outbound messages.",
+          "dependencies": [],
+          "details": "Create a MessageList component that renders the conversation thread with proper styling for sent and received messages. Implement auto-scrolling to the most recent message. Each message should display the message body and timestamp with appropriate styling based on message direction (inbound/outbound). Use virtualization if handling large message threads for performance.",
+          "status": "done",
+          "testStrategy": "Test with various message combinations, verify scroll behavior, and test timestamp formatting."
+        },
+        {
+          "id": 4,
+          "title": "Implement Smart Replies Feature",
+          "description": "Create the smart replies section that displays AI-suggested quick responses that users can send with a single click.",
+          "dependencies": [],
+          "details": "Build a SmartReplies component that displays suggested replies as clickable chips. Implement the handleSmartReply function to send the selected reply. Ensure the component has proper spacing and wrapping behavior for multiple suggestions. Add loading states for when suggestions are being fetched.",
+          "status": "done",
+          "testStrategy": "Test click handling, verify proper API calls are made when a smart reply is selected, and test appearance with varying numbers of suggestions."
+        },
+        {
+          "id": 5,
+          "title": "Create Message Input and Send Functionality",
+          "description": "Implement the message composition area with text input and send button functionality.",
+          "dependencies": [],
+          "details": "Build a MessageComposer component with a text field for message input and a send button. Implement handleSendMessage to submit messages to the API. Add keyboard shortcuts (Enter to send) and disable the send button when the input is empty. Include appropriate loading states during message sending and error handling for failed sends.",
+          "status": "done",
+          "testStrategy": "Test input validation, button state changes based on input, keyboard shortcuts, and verify API calls are made with correct parameters."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Implement SMS Inbox Page",
+      "description": "Create the SMS Inbox page that combines the Contact List Panel and Message Thread Panel into a two-panel layout.",
+      "details": "1. Create an SMSInboxPage component:\n   ```tsx\n   // src/pages/SMSInboxPage.tsx\n   import React, { useState, useEffect } from 'react';\n   import { Box, Paper, useMediaQuery, useTheme, IconButton, Drawer } from '@mui/material'; // Or equivalent Chakra UI components\n   import { Menu as MenuIcon } from '@mui/icons-material'; // Or equivalent icon\n   import { useParams, useNavigate } from 'react-router-dom';\n   import ContactListPanel from '../components/sms/ContactListPanel';\n   import MessageThreadPanel from '../components/sms/MessageThreadPanel';\n   import { smsService } from '../services';\n   \n   const SMSInboxPage = () => {\n     const { contactId } = useParams();\n     const navigate = useNavigate();\n     const [selectedContactId, setSelectedContactId] = useState(contactId || '');\n     const [drawerOpen, setDrawerOpen] = useState(false);\n     const theme = useTheme();\n     const isMobile = useMediaQuery(theme.breakpoints.down('md'));\n     \n     useEffect(() => {\n       // If contactId is provided in URL but not in state, update state\n       if (contactId && contactId !== selectedContactId) {\n         setSelectedContactId(contactId);\n       }\n       \n       // If no contactId is provided, try to select the first thread\n       if (!contactId) {\n         const fetchFirstThread = async () => {\n           try {\n             const threads = await smsService.getSmsThreads();\n             if (threads.length > 0) {\n               const firstContactId = threads[0].contactId;\n               setSelectedContactId(firstContactId);\n               navigate(`/sms/${firstContactId}`, { replace: true });\n             }\n           } catch (error) {\n             console.error('Error fetching threads:', error);\n           }\n         };\n         \n         fetchFirstThread();\n       }\n     }, [contactId, selectedContactId, navigate]);\n     \n     const handleContactSelect = (contactId) => {\n       setSelectedContactId(contactId);\n       navigate(`/sms/${contactId}`);\n       if (isMobile) {\n         setDrawerOpen(false);\n       }\n     };\n     \n     return (\n       <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>\n         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>\n           <h1>SMS Inbox</h1>\n           {isMobile && (\n             <IconButton \n               edge=\"start\" \n               color=\"inherit\" \n               aria-label=\"menu\"\n               onClick={() => setDrawerOpen(true)}\n               sx={{ mr: 2 }}\n             >\n               <MenuIcon />\n             </IconButton>\n           )}\n         </Box>\n         \n         <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>\n           {isMobile ? (\n             <>\n               <Drawer\n                 anchor=\"left\"\n                 open={drawerOpen}\n                 onClose={() => setDrawerOpen(false)}\n               >\n                 <Box sx={{ width: 300, height: '100%' }}>\n                   <ContactListPanel \n                     onContactSelect={handleContactSelect} \n                     selectedContactId={selectedContactId} \n                   />\n                 </Box>\n               </Drawer>\n               <Box sx={{ flex: 1 }}>\n                 <MessageThreadPanel contactId={selectedContactId} />\n               </Box>\n             </>\n           ) : (\n             <>\n               <Paper sx={{ width: 300, height: '100%', overflow: 'hidden' }}>\n                 <ContactListPanel \n                   onContactSelect={handleContactSelect} \n                   selectedContactId={selectedContactId} \n                 />\n               </Paper>\n               <Box sx={{ flex: 1, ml: 2 }}>\n                 <MessageThreadPanel contactId={selectedContactId} />\n               </Box>\n             </>\n           )}\n         </Box>\n       </Box>\n     );\n   };\n   \n   export default SMSInboxPage;\n   ```",
+      "testStrategy": "Test the page layout in both desktop and mobile viewports. Verify that the two-panel layout displays correctly on desktop and switches to a drawer navigation on mobile. Test contact selection to ensure it updates the URL and displays the correct message thread. Test navigation between contacts. Verify that URL parameters are correctly handled when directly accessing a specific contact's thread.",
+      "priority": "medium",
+      "dependencies": [
+        6,
+        7
+      ],
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Implement Contact Profile View (Optional)",
+      "description": "Create a consolidated view showing all historical interactions for a single contact, including both calls and SMS messages in a unified timeline.",
+      "details": "1. Create a ContactProfilePage component:\n   ```tsx\n   // src/pages/ContactProfilePage.tsx\n   import React, { useState, useEffect } from 'react';\n   import { useParams, useNavigate } from 'react-router-dom';\n   import { Box, Paper, Typography, Tabs, Tab, Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot, TimelineOppositeContent, Button, Chip } from '@mui/material'; // Or equivalent Chakra UI components\n   import { Phone as PhoneIcon, Chat as ChatIcon } from '@mui/icons-material'; // Or equivalent icons\n   import { callService, smsService } from '../services';\n   \n   // Helper function to merge and sort calls and messages by timestamp\n   const mergeInteractions = (calls, messages) => {\n     const callItems = calls.map(call => ({\n       type: 'call',\n       timestamp: call.timestamp,\n       data: call\n     }));\n     \n     const messageItems = messages.map(msg => ({\n       type: 'message',\n       timestamp: msg.timestamp,\n       data: msg\n     }));\n     \n     return [...callItems, ...messageItems].sort((a, b) => \n       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()\n     );\n   };\n   \n   const ContactProfilePage = () => {\n     const { contactId } = useParams();\n     const navigate = useNavigate();\n     const [loading, setLoading] = useState(true);\n     const [contactData, setContactData] = useState(null);\n     const [interactions, setInteractions] = useState([]);\n     const [activeTab, setActiveTab] = useState(0);\n     \n     useEffect(() => {\n       if (!contactId) return;\n       \n       const fetchContactData = async () => {\n         setLoading(true);\n         try {\n           // In a real app, we'd have a dedicated contact service\n           // For this demo, we'll extract contact info from the SMS thread\n           const thread = await smsService.getSmsThreadByContactId(contactId);\n           \n           if (!thread) {\n             console.error('Contact not found');\n             return;\n           }\n           \n           setContactData({\n             id: contactId,\n             name: thread.contactName,\n             number: thread.contactNumber,\n             // In a real app, we'd have more contact details\n             email: `${thread.contactName.toLowerCase().replace(/\\s/g, '.')}@example.com`,\n             tags: ['Prospect', 'Follow-up']\n           });\n           \n           // Get calls for this contact\n           const allCalls = await callService.getCalls();\n           const contactCalls = allCalls.filter(call => \n             call.callerNumber === thread.contactNumber || \n             call.dialedNumber === thread.contactNumber\n           );\n           \n           // Get messages for this contact\n           const messages = thread.messages;\n           \n           // Merge and sort interactions\n           const mergedInteractions = mergeInteractions(contactCalls, messages);\n           setInteractions(mergedInteractions);\n         } catch (error) {\n           console.error('Error fetching contact data:', error);\n         } finally {\n           setLoading(false);\n         }\n       };\n       \n       fetchContactData();\n     }, [contactId]);\n     \n     const handleTabChange = (event, newValue) => {\n       setActiveTab(newValue);\n     };\n     \n     const handleViewCall = (callId) => {\n       // Navigate to call logs and open the specific call\n       navigate(`/calls?callId=${callId}`);\n     };\n     \n     const handleViewChat = () => {\n       navigate(`/sms/${contactId}`);\n     };\n     \n     if (loading || !contactData) {\n       return (\n         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>\n           <Typography>Loading contact profile...</Typography>\n         </Box>\n       );\n     }\n     \n     return (\n       <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>\n         <Paper sx={{ p: 3, mb: 3 }}>\n           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>\n             <Box>\n               <Typography variant=\"h4\">{contactData.name}</Typography>\n               <Typography variant=\"body1\" color=\"text.secondary\">{contactData.number}</Typography>\n               <Typography variant=\"body2\" color=\"text.secondary\">{contactData.email}</Typography>\n               <Box sx={{ mt: 1 }}>\n                 {contactData.tags.map((tag, index) => (\n                   <Chip key={index} label={tag} size=\"small\" sx={{ mr: 1 }} />\n                 ))}\n               </Box>\n             </Box>\n             <Box>\n               <Button \n                 variant=\"contained\" \n                 startIcon={<ChatIcon />} \n                 onClick={handleViewChat}\n                 sx={{ mr: 1 }}\n               >\n                 View Chat\n               </Button>\n             </Box>\n           </Box>\n         </Paper>\n         \n         <Paper sx={{ p: 3 }}>\n           <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 3 }}>\n             <Tab label=\"All Interactions\" />\n             <Tab label=\"Calls\" />\n             <Tab label=\"Messages\" />\n           </Tabs>\n           \n           <Timeline position=\"alternate\">\n             {interactions\n               .filter(item => {\n                 if (activeTab === 0) return true;\n                 if (activeTab === 1) return item.type === 'call';\n                 if (activeTab === 2) return item.type === 'message';\n                 return false;\n               })\n               .map((item, index) => (\n                 <TimelineItem key={index}>\n                   <TimelineOppositeContent color=\"text.secondary\">\n                     {new Date(item.timestamp).toLocaleString()}\n                   </TimelineOppositeContent>\n                   <TimelineSeparator>\n                     <TimelineDot color={item.type === 'call' ? 'primary' : 'secondary'}>\n                       {item.type === 'call' ? <PhoneIcon /> : <ChatIcon />}\n                     </TimelineDot>\n                     {index < interactions.length - 1 && <TimelineConnector />}\n                   </TimelineSeparator>\n                   <TimelineContent>\n                     <Paper sx={{ p: 2 }}>\n                       {item.type === 'call' ? (\n                         <>\n                           <Typography variant=\"subtitle1\">\n                             {item.data.callerNumber === contactData.number ? 'Inbound Call' : 'Outbound Call'}\n                           </Typography>\n                           <Typography variant=\"body2\">\n                             Duration: {item.data.duration}\n                           </Typography>\n                           {item.data.summary && (\n                             <Typography variant=\"body2\" sx={{ mt: 1 }}>\n                               {item.data.summary}\n                             </Typography>\n                           )}\n                           <Button \n                             size=\"small\" \n                             sx={{ mt: 1 }} \n                             onClick={() => handleViewCall(item.data.id)}\n                           >\n                             View Details\n                           </Button>\n                         </>\n                       ) : (\n                         <>\n                           <Typography variant=\"subtitle1\">\n                             {item.data.direction === 'inbound' ? 'Received Message' : 'Sent Message'}\n                           </Typography>\n                           <Typography variant=\"body2\" sx={{ mt: 1 }}>\n                             {item.data.body}\n                           </Typography>\n                         </>\n                       )}\n                     </Paper>\n                   </TimelineContent>\n                 </TimelineItem>\n               ))}\n           </Timeline>\n         </Paper>\n       </Box>\n     );\n   };\n   \n   export default ContactProfilePage;\n   ```",
+      "testStrategy": "Test the profile view with various contact data. Verify that the contact details display correctly. Test the timeline to ensure it correctly merges and sorts calls and messages by timestamp. Test the tab filtering to ensure it correctly filters interactions by type. Test navigation to call details and SMS chat. Test with contacts that have different combinations of calls and messages.",
+      "priority": "low",
+      "dependencies": [
+        5,
+        7
+      ],
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Implement App Routing and Integration",
+      "description": "Set up the application routing and integrate all components to create a cohesive user experience with navigation between views.",
+      "details": "1. Create an App component with routing:\n   ```tsx\n   // src/App.tsx\n   import React from 'react';\n   import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';\n   import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'; // Or equivalent Chakra UI setup\n   import AppLayout from './components/layout/AppLayout';\n   import CallLogsPage from './pages/CallLogsPage';\n   import SMSInboxPage from './pages/SMSInboxPage';\n   import ContactProfilePage from './pages/ContactProfilePage';\n   \n   // Create a theme instance\n   const theme = createTheme({\n     palette: {\n       primary: {\n         main: '#1976d2',\n       },\n       secondary: {\n         main: '#dc004e',\n       },\n       background: {\n         default: '#f5f5f5',\n       },\n     },\n     typography: {\n       fontFamily: '\"Roboto\", \"Helvetica\", \"Arial\", sans-serif',\n     },\n   });\n   \n   const App = () => {\n     return (\n       <ThemeProvider theme={theme}>\n         <CssBaseline />\n         <Router>\n           <AppLayout>\n             <Routes>\n               <Route path=\"/calls\" element={<CallLogsPage />} />\n               <Route path=\"/sms\" element={<SMSInboxPage />} />\n               <Route path=\"/sms/:contactId\" element={<SMSInboxPage />} />\n               <Route path=\"/contacts/:contactId\" element={<ContactProfilePage />} />\n               <Route path=\"/\" element={<Navigate to=\"/calls\" replace />} />\n               <Route path=\"*\" element={<Navigate to=\"/calls\" replace />} />\n             </Routes>\n           </AppLayout>\n         </Router>\n       </ThemeProvider>\n     );\n   };\n   \n   export default App;\n   ```\n\n2. Create an AppLayout component for consistent navigation:\n   ```tsx\n   // src/components/layout/AppLayout.tsx\n   import React, { useState } from 'react';\n   import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Box, useMediaQuery, useTheme } from '@mui/material'; // Or equivalent Chakra UI components\n   import { Menu as MenuIcon, Phone as PhoneIcon, Chat as ChatIcon, Person as PersonIcon } from '@mui/icons-material'; // Or equivalent icons\n   import { useNavigate, useLocation } from 'react-router-dom';\n   \n   const drawerWidth = 240;\n   \n   const AppLayout = ({ children }) => {\n     const theme = useTheme();\n     const isMobile = useMediaQuery(theme.breakpoints.down('md'));\n     const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);\n     const navigate = useNavigate();\n     const location = useLocation();\n     \n     const handleNavigation = (path) => {\n       navigate(path);\n       if (isMobile) {\n         setMobileDrawerOpen(false);\n       }\n     };\n     \n     const isActive = (path) => {\n       return location.pathname.startsWith(path);\n     };\n     \n     const drawer = (\n       <div>\n         <Toolbar>\n           <Typography variant=\"h6\" noWrap>\n             Unified Comms\n           </Typography>\n         </Toolbar>\n         <List>\n           <ListItem \n             button \n             onClick={() => handleNavigation('/calls')} \n             selected={isActive('/calls')}\n           >\n             <ListItemIcon>\n               <PhoneIcon />\n             </ListItemIcon>\n             <ListItemText primary=\"Call Logs\" />\n           </ListItem>\n           <ListItem \n             button \n             onClick={() => handleNavigation('/sms')} \n             selected={isActive('/sms')}\n           >\n             <ListItemIcon>\n               <ChatIcon />\n             </ListItemIcon>\n             <ListItemText primary=\"SMS Inbox\" />\n           </ListItem>\n         </List>\n       </div>\n     );\n     \n     return (\n       <Box sx={{ display: 'flex' }}>\n         <AppBar \n           position=\"fixed\" \n           sx={{\n             width: isMobile ? '100%' : `calc(100% - ${drawerWidth}px)`,\n             ml: isMobile ? 0 : `${drawerWidth}px`,\n           }}\n         >\n           <Toolbar>\n             {isMobile && (\n               <IconButton\n                 color=\"inherit\"\n                 aria-label=\"open drawer\"\n                 edge=\"start\"\n                 onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}\n                 sx={{ mr: 2 }}\n               >\n                 <MenuIcon />\n               </IconButton>\n             )}\n             <Typography variant=\"h6\" noWrap component=\"div\">\n               {location.pathname.includes('/calls') && 'Call Logs'}\n               {location.pathname.includes('/sms') && 'SMS Inbox'}\n               {location.pathname.includes('/contacts') && 'Contact Profile'}\n             </Typography>\n           </Toolbar>\n         </AppBar>\n         \n         {isMobile ? (\n           <Drawer\n             variant=\"temporary\"\n             open={mobileDrawerOpen}\n             onClose={() => setMobileDrawerOpen(false)}\n             ModalProps={{ keepMounted: true }}\n             sx={{\n               '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },\n             }}\n           >\n             {drawer}\n           </Drawer>\n         ) : (\n           <Drawer\n             variant=\"permanent\"\n             sx={{\n               width: drawerWidth,\n               flexShrink: 0,\n               '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },\n             }}\n             open\n           >\n             {drawer}\n           </Drawer>\n         )}\n         \n         <Box\n           component=\"main\"\n           sx={{ \n             flexGrow: 1, \n             p: 0, \n             width: { md: `calc(100% - ${drawerWidth}px)` }, \n             mt: '64px' // AppBar height\n           }}\n         >\n           {children}\n         </Box>\n       </Box>\n     );\n   };\n   \n   export default AppLayout;\n   ```\n\n3. Update the index.tsx file to render the App component:\n   ```tsx\n   // src/index.tsx\n   import React from 'react';\n   import ReactDOM from 'react-dom';\n   import App from './App';\n   \n   ReactDOM.render(\n     <React.StrictMode>\n       <App />\n     </React.StrictMode>,\n     document.getElementById('root')\n   );\n   ```",
+      "testStrategy": "Test the routing to ensure navigation between all views works correctly. Verify that the AppLayout renders consistently across all pages. Test responsive behavior to ensure the layout adapts appropriately to different screen sizes. Test direct URL access to each route to ensure they load correctly. Test that the navigation drawer highlights the active route. Test that the 'Open Chat' button in the Call Detail modal correctly navigates to the SMS view for the selected contact.",
+      "priority": "high",
+      "dependencies": [
+        4,
+        5,
+        8,
+        9
+      ],
+      "status": "done",
+      "subtasks": []
+    }
+  ]
+}

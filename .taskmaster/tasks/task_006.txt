@@ -1,0 +1,160 @@
+# Task ID: 6
+# Title: Implement SMS Inbox Contact List Panel
+# Status: done
+# Dependencies: 3
+# Priority: medium
+# Description: Create the left panel of the SMS Inbox view that displays a list of contacts with their most recent message and allows selection to view the conversation thread.
+# Details:
+1. Create a ContactListPanel component:
+   ```tsx
+   // src/components/sms/ContactListPanel.tsx
+   import React, { useState, useEffect } from 'react';
+   import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Box, TextField, CircularProgress } from '@mui/material'; // Or equivalent Chakra UI components
+   import { smsService } from '../../services';
+   
+   const ContactListPanel = ({ onContactSelect, selectedContactId }) => {
+     const [threads, setThreads] = useState([]);
+     const [loading, setLoading] = useState(true);
+     const [searchTerm, setSearchTerm] = useState('');
+     
+     useEffect(() => {
+       const fetchThreads = async () => {
+         try {
+           const data = await smsService.getSmsThreads();
+           setThreads(data);
+         } catch (error) {
+           console.error('Error fetching SMS threads:', error);
+         } finally {
+           setLoading(false);
+         }
+       };
+       
+       fetchThreads();
+     }, []);
+     
+     const filteredThreads = threads.filter(thread => 
+       thread.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       thread.contactNumber.includes(searchTerm)
+     );
+     
+     // Sort threads by timestamp (most recent first)
+     const sortedThreads = [...filteredThreads].sort((a, b) => 
+       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+     );
+     
+     return (
+       <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+         <Box sx={{ p: 2 }}>
+           <TextField
+             fullWidth
+             placeholder="Search contacts"
+             value={searchTerm}
+             onChange={(e) => setSearchTerm(e.target.value)}
+             variant="outlined"
+             size="small"
+           />
+         </Box>
+         
+         {loading ? (
+           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+             <CircularProgress />
+           </Box>
+         ) : (
+           <List sx={{ overflow: 'auto', flex: 1 }}>
+             {sortedThreads.map((thread) => (
+               <ListItem 
+                 key={thread.contactId} 
+                 button 
+                 selected={selectedContactId === thread.contactId}
+                 onClick={() => onContactSelect(thread.contactId)}
+                 sx={{
+                   borderLeft: selectedContactId === thread.contactId ? '4px solid #1976d2' : 'none',
+                   bgcolor: selectedContactId === thread.contactId ? 'rgba(25, 118, 210, 0.08)' : 'transparent'
+                 }}
+               >
+                 <ListItemAvatar>
+                   <Avatar>{thread.contactName.charAt(0)}</Avatar>
+                 </ListItemAvatar>
+                 <ListItemText
+                   primary={
+                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <Typography variant="subtitle2" noWrap>
+                         {thread.contactName}
+                       </Typography>
+                       <Typography variant="caption" color="text.secondary">
+                         {new Date(thread.timestamp).toLocaleDateString()}
+                       </Typography>
+                     </Box>
+                   }
+                   secondary={
+                     <Box>
+                       <Typography variant="body2" noWrap color="text.secondary">
+                         {thread.lastMessage}
+                       </Typography>
+                       {thread.unreadCount > 0 && (
+                         <Box 
+                           component="span" 
+                           sx={{ 
+                             display: 'inline-block',
+                             bgcolor: 'primary.main',
+                             color: 'white',
+                             borderRadius: '50%',
+                             width: 20,
+                             height: 20,
+                             textAlign: 'center',
+                             lineHeight: '20px',
+                             fontSize: '0.75rem',
+                             ml: 1
+                           }}
+                         >
+                           {thread.unreadCount}
+                         </Box>
+                       )}
+                     </Box>
+                   }
+                 />
+               </ListItem>
+             ))}
+           </List>
+         )}
+       </Box>
+     );
+   };
+   
+   export default ContactListPanel;
+   ```
+
+# Test Strategy:
+Test the component with various mock data scenarios. Verify that the contact list displays correctly with contact names, last messages, and timestamps. Test the search functionality to ensure it filters contacts correctly. Verify that selecting a contact triggers the onContactSelect callback with the correct contactId. Test the loading state display.
+
+# Subtasks:
+## 1. Create SMS Service Interface [done]
+### Dependencies: None
+### Description: Implement the SMS service interface that will handle fetching SMS threads and messages from the backend.
+### Details:
+Create a service file at src/services/smsService.ts that exports functions for fetching SMS threads and messages. Implement the getSmsThreads() method that returns a Promise with thread data including contactId, contactName, contactNumber, lastMessage, timestamp, and unreadCount. Add error handling and appropriate typing.
+
+## 2. Implement Contact List UI Components [done]
+### Dependencies: None
+### Description: Build the UI components for the contact list panel including list items, avatars, and text formatting.
+### Details:
+Refine the ContactListPanel component with proper styling and layout. Ensure the avatar, contact name, timestamp, last message preview, and unread count badge are properly styled and positioned. Implement responsive design considerations for different screen sizes.
+
+## 3. Add Search and Filtering Functionality [done]
+### Dependencies: None
+### Description: Implement the search functionality to filter contacts by name or phone number.
+### Details:
+Enhance the search input field to filter the contact list in real-time as the user types. Optimize the filtering logic to handle large contact lists efficiently. Add debounce functionality to prevent excessive re-renders during typing.
+
+## 4. Implement Contact Selection and State Management [done]
+### Dependencies: None
+### Description: Create the state management logic for selecting contacts and highlighting the selected contact in the list.
+### Details:
+Implement the onContactSelect handler to manage the selected contact state. Add visual indicators for the selected contact including the left border highlight and background color change. Ensure the selection state persists when filtering or searching contacts.
+
+## 5. Add Loading States and Error Handling [done]
+### Dependencies: None
+### Description: Implement loading indicators and error handling for the contact list panel.
+### Details:
+Add a loading spinner when fetching contact data. Implement error handling to display appropriate error messages when the API calls fail. Add retry functionality for failed API calls. Implement empty state UI when no contacts are available or when search returns no results.
+

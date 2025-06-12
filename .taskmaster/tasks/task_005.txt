@@ -1,0 +1,211 @@
+# Task ID: 5
+# Title: Implement Call Detail Modal
+# Status: done
+# Dependencies: 4
+# Priority: medium
+# Description: Create a modal component that displays detailed information about a selected call, including a placeholder audio player, transcript, summary, and qualification toggle.
+# Details:
+1. Create a CallDetailModal component:
+   ```tsx
+   // src/components/calls/CallDetailModal.tsx
+   import React, { useState } from 'react';
+   import { Modal, Box, Typography, Button, Switch, FormControlLabel, Paper } from '@mui/material'; // Or equivalent Chakra UI components
+   import { useNavigate } from 'react-router-dom';
+   import { callService } from '../../services';
+   
+   const CallDetailModal = ({ call, open, onClose, onQualificationChange }) => {
+     const [isQualified, setIsQualified] = useState(call?.isQualified || false);
+     const navigate = useNavigate();
+     
+     if (!call) return null;
+     
+     const handleQualificationToggle = async () => {
+       const newValue = !isQualified;
+       setIsQualified(newValue);
+       
+       try {
+         await callService.updateCallQualification(call.id, newValue);
+         if (onQualificationChange) {
+           onQualificationChange(call.id, newValue);
+         }
+       } catch (error) {
+         console.error('Error updating qualification:', error);
+         // Revert UI state on error
+         setIsQualified(!newValue);
+       }
+     };
+     
+     const handleOpenChat = () => {
+       // Extract contactId from the call data - in a real app, this would be more robust
+       const contactId = call.callerNumber.replace(/\D/g, '');
+       navigate(`/sms/${contactId}`);
+       onClose();
+     };
+     
+     return (
+       <Modal open={open} onClose={onClose}>
+         <Box sx={{ 
+           position: 'absolute', 
+           top: '50%', 
+           left: '50%', 
+           transform: 'translate(-50%, -50%)', 
+           width: '80%', 
+           maxWidth: 800,
+           bgcolor: 'background.paper', 
+           boxShadow: 24, 
+           p: 4,
+           maxHeight: '90vh',
+           overflow: 'auto'
+         }}>
+           <Typography variant="h5" component="h2">
+             Call Details
+           </Typography>
+           
+           <Box sx={{ mt: 2 }}>
+             <Typography variant="subtitle1">
+               {call.callerNumber} → {call.dialedNumber}
+             </Typography>
+             <Typography variant="body2">
+               {new Date(call.timestamp).toLocaleString()} • {call.duration}
+             </Typography>
+           </Box>
+           
+           {/* Placeholder Audio Player */}
+           <Paper sx={{ p: 2, mt: 3, bgcolor: '#f5f5f5' }}>
+             <Typography variant="subtitle2">Call Recording</Typography>
+             <Box sx={{ 
+               display: 'flex', 
+               alignItems: 'center', 
+               justifyContent: 'space-between',
+               mt: 1
+             }}>
+               <Button variant="contained" size="small">▶ Play</Button>
+               <div style={{ flex: 1, height: 4, margin: '0 10px', backgroundColor: '#ddd' }} />
+               <Typography variant="caption">00:00 / {call.duration}</Typography>
+             </Box>
+           </Paper>
+           
+           {/* Transcript */}
+           <Box sx={{ mt: 3 }}>
+             <Typography variant="subtitle2">Transcript</Typography>
+             <Paper sx={{ p: 2, mt: 1, maxHeight: 200, overflow: 'auto' }}>
+               {call.transcript.map((line, index) => (
+                 <Typography key={index} variant="body2" sx={{ mb: 1 }}>
+                   {line}
+                 </Typography>
+               ))}
+             </Paper>
+           </Box>
+           
+           {/* Summary */}
+           <Box sx={{ mt: 3 }}>
+             <Typography variant="subtitle2">AI Summary</Typography>
+             <Paper sx={{ p: 2, mt: 1 }}>
+               <Typography variant="body2">{call.summary}</Typography>
+             </Paper>
+           </Box>
+           
+           {/* Actions */}
+           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <FormControlLabel
+               control={
+                 <Switch 
+                   checked={isQualified} 
+                   onChange={handleQualificationToggle} 
+                 />
+               }
+               label="Qualified Lead"
+             />
+             
+             <Button 
+               variant="contained" 
+               color="primary" 
+               onClick={handleOpenChat}
+             >
+               Open Chat
+             </Button>
+           </Box>
+         </Box>
+       </Modal>
+     );
+   };
+   
+   export default CallDetailModal;
+   ```
+2. Update the CallLogsPage to use the modal:
+   ```tsx
+   // src/pages/CallLogsPage.tsx (updated)
+   import React, { useState } from 'react';
+   import CallLogsTable from '../components/calls/CallLogsTable';
+   import CallDetailModal from '../components/calls/CallDetailModal';
+   
+   const CallLogsPage = () => {
+     const [selectedCall, setSelectedCall] = useState(null);
+     const [modalOpen, setModalOpen] = useState(false);
+     
+     const handleRowClick = (call) => {
+       setSelectedCall(call);
+       setModalOpen(true);
+     };
+     
+     const handleModalClose = () => {
+       setModalOpen(false);
+     };
+     
+     const handleQualificationChange = (callId, isQualified) => {
+       // In a real app with a backend, this would trigger a refresh of the data
+       // For this demo, we'll update the UI directly
+       setSelectedCall(prev => prev ? {...prev, isQualified} : null);
+     };
+     
+     return (
+       <div className="call-logs-page">
+         <h1>Call Logs</h1>
+         <CallLogsTable onRowClick={handleRowClick} />
+         <CallDetailModal 
+           call={selectedCall} 
+           open={modalOpen} 
+           onClose={handleModalClose} 
+           onQualificationChange={handleQualificationChange}
+         />
+       </div>
+     );
+   };
+   
+   export default CallLogsPage;
+   ```
+
+# Test Strategy:
+Test the modal with various call data. Verify that all sections (audio player placeholder, transcript, summary) display correctly. Test the qualification toggle to ensure it updates the local state. Test the 'Open Chat' button to verify it navigates to the correct SMS thread. Verify that the modal closes properly.
+
+# Subtasks:
+## 1. Create CallDetailModal component structure [done]
+### Dependencies: None
+### Description: Set up the basic structure of the CallDetailModal component with the modal container, header, and call metadata display.
+### Details:
+Create the CallDetailModal.tsx file in the components/calls directory. Implement the component with React and Material UI, including the modal wrapper, positioning styles, and basic call information display (caller/dialed numbers and timestamp). Set up the component props interface and state management for the modal open/close functionality.
+
+## 2. Implement audio player placeholder [done]
+### Dependencies: 5.1
+### Description: Add a placeholder audio player UI component to the modal that displays the call duration and play controls.
+### Details:
+Create a Paper component with play button, progress bar, and duration display. This will be a non-functional UI placeholder that shows the call duration from the call object. Style it to look like a standard audio player with appropriate spacing and visual hierarchy.
+
+## 3. Add transcript and summary sections [done]
+### Dependencies: 5.1
+### Description: Implement the transcript and AI summary sections of the modal to display call content.
+### Details:
+Create two separate sections in the modal: one for the transcript and one for the AI summary. The transcript section should map through the call.transcript array and render each line with appropriate styling. The summary section should display the call.summary text. Both sections should be contained in Paper components with proper headings and scrollable content areas where needed.
+
+## 4. Implement qualification toggle functionality [done]
+### Dependencies: 5.1
+### Description: Add the ability to mark a call as a qualified lead with a toggle switch and implement the state management and API call.
+### Details:
+Implement the handleQualificationToggle function that updates the local state and makes an API call to callService.updateCallQualification. Add error handling to revert the UI state if the API call fails. Create the FormControlLabel with Switch component that displays the current qualification status and allows toggling.
+
+## 5. Integrate modal with CallLogsPage [done]
+### Dependencies: 5.1, 5.4
+### Description: Update the CallLogsPage component to use the CallDetailModal and handle row clicks and qualification changes.
+### Details:
+Modify the CallLogsPage component to maintain state for the selected call and modal open status. Implement the handleRowClick function to set the selected call and open the modal. Add the handleModalClose function to close the modal. Implement handleQualificationChange to update the UI when a call's qualification status changes. Add the CallDetailModal component to the page with the appropriate props.
+

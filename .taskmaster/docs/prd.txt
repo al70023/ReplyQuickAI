@@ -1,0 +1,88 @@
+# Overview
+This document outlines the requirements for building a **UI-only demonstration** of a unified communications history interface. **This project involves no backend development and will use statically defined dummy data to simulate functionality.** The goal is to showcase a high-fidelity, aesthetically pleasing, and functional frontend that demonstrates how users would interact with the system. The platform's real backend (AI calling, SMS, etc.) is considered out of scope for this build. The UI should be built to be easily integrated with a real backend in the future.
+
+# Core Features
+
+### 1. Call Logs View (Dashboard)
+- **Description:** A centralized dashboard displaying a chronological history of all inbound and outbound calls, populated with dummy data.
+- **High-Level Functionality:**
+    -   **Table View:** A filterable and sortable table populated from a local mock data source. Columns include: `Caller Number`, `Dialed Number`, `Date/Time`, `Duration`, `AI Summary`, and `Qualified`.
+    -   **Call Detail Modal:** Clicking a row opens a modal with details for the selected call.
+        -   **Audio Player:** A non-functional or placeholder audio player UI.
+        -   **Transcript:** A scrollable view displaying a mock text transcript.
+        -   **Summary:** The AI-generated summary from the mock data.
+        -   **Qualification Toggle:** A functional UI switch that updates the state *locally* (no backend call).
+        -   **"Open Chat" Button:** A button that navigates the user to the SMS Inbox view, passing the contact's ID.
+
+### 2. SMS Inbox View
+- **Description:** A threaded, two-panel chat interface for viewing and managing SMS conversations, populated with dummy data.
+- **High-Level Functionality:**
+    -   **Contact List Panel (Left):** A list of mock contacts. Selecting a contact updates the right panel to show their mock message history.
+    -   **Message Thread Panel (Right):** A classic chat UI displaying mock SMS messages.
+        -   **Banners:** UI for banners showing which Twilio number was texted and any call-to-text context.
+        -   **Smart Replies:** The UI should display mock smart reply options. Clicking one can add the reply to the chat history in the local state.
+
+### 3. Contact Profile View (Optional if time)
+- **Description:** A consolidated view showing all historical interactions for a single contact, using mock data.
+- **High-Level Functionality:**
+    -   A unified timeline displaying mock calls and texts.
+    -   Static display of contact details and tags.
+
+# User Experience
+- **User Persona:** A potential client or stakeholder viewing a demo of the proposed UI/UX. The focus is on demonstrating the look, feel, and flow of the interface.
+- **Key User Flow 1 (Reviewing a recent call):**
+    1.  User navigates to the "Call Logs" dashboard, which is pre-populated with mock data.
+    2.  They use the functional filter/sort UI to interact with the table.
+    3.  They click on a call, opening the detail modal.
+    4.  They see the placeholder audio player and scroll through the mock transcript.
+    5.  They toggle the "Qualified" switch, which visually updates in the UI.
+    6.  They click "Open Chat", which navigates them to the SMS view for that contact.
+- **Key User Flow 2 (Responding to an SMS):**
+    1.  User navigates to the "SMS Inbox".
+    2.  They select a mock contact from the list.
+    3.  The chat panel updates with that contact's mock message history.
+    4.  They click a "smart reply" button, and the message instantly appears in the chat thread (local state update).
+
+# Technical Architecture
+- **Frontend Framework:** React.js, with a focus on a clean, modern aesthetic using a component library like Material-UI or Chakra UI.
+- **State Management:** Simple, client-side state management is sufficient. React Context or Zustand can be used for global state (e.g., managing the dummy data and selected contact), while component-level state can handle UI interactions.
+- **Data:** All data will be hard-coded in mock data files (e.g., `src/data/mockCalls.ts`, `src/data/mockSms.ts`). **No API calls will be made.** A fake API service layer can be created that returns promises resolving with mock data to simulate async behavior.
+- **Data Models (Frontend-Only):**
+    -   `CallLog`: { id, callerNumber, dialedNumber, timestamp, duration, summary, isQualified, transcript, recordingUrl }
+    -   `SMSThread`: { contactNumber, lastMessage, timestamp, unreadCount, messages: SMSMessage[] }
+    -   `SMSMessage`: { id, body, timestamp, direction: 'inbound' | 'outbound' }
+
+# Development Roadmap
+
+### Phase 1: Minimum Viable Product (MVP) - UI DEMO
+1.  **Foundation & Data:**
+    -   Set up the React frontend project structure.
+    -   Create mock data files for calls and SMS messages with realistic-looking content.
+2.  **Call Logs UI:**
+    -   Build the main Call Logs table component, populating it from the mock data file.
+    -   Implement client-side filtering and sorting for the table.
+    -   Build the Call Detail modal UI and populate it with data from the selected table row.
+    -   Implement the local-state-only qualification toggle.
+3.  **SMS Inbox UI:**
+    -   Build the two-panel SMS Inbox layout.
+    -   Populate the Contact List and Message Thread from mock data files.
+    -   Implement the UI for sending a message and displaying smart replies, updating only the local state.
+4.  **Integration:**
+    -   Connect the "Open Chat" button to navigate between the call view and the SMS view, ensuring the correct contact's data is shown.
+
+### Phase 2: Future Enhancements (Post-Demo)
+-   Replace mock data services with actual API integration.
+-   Implement the full Contact Profile View with real data.
+-   Add real-time functionality via WebSockets.
+
+# Logical Dependency Chain
+1.  **Define Mock Data Structures:** Finalize the structure of the mock data objects to ensure they contain all necessary fields for the UI.
+2.  **Create Mock Data:** Populate the mock data files with a sufficient amount of varied data to make the UI feel alive.
+3.  **UI Component Scaffolding:** Build the individual, non-connected UI components (Table, Modal, Chat Bubbles) using the mock data.
+4.  **Component Integration & State Management:** Wire up the components using client-side state management to create a fully interactive, albeit simulated, user flow.
+
+# Risks and Mitigations
+-   **Risk:** The UI is built in a way that is difficult to connect to a real backend later.
+    -   **Mitigation:** Create a "service" or "API" layer in the code that provides the mock data. This layer can be swapped out later with one that makes real API calls, minimizing refactoring.
+-   **Risk:** The UI demo doesn't accurately reflect the final product's performance.
+    -   **Mitigation:** Be transparent that this is a UI-only demo. Use techniques like `setTimeout` in the mock service layer to simulate network latency and give a more realistic feel.

@@ -1,0 +1,212 @@
+# Task ID: 9
+# Title: Implement Contact Profile View (Optional)
+# Status: done
+# Dependencies: 5, 7
+# Priority: low
+# Description: Create a consolidated view showing all historical interactions for a single contact, including both calls and SMS messages in a unified timeline.
+# Details:
+1. Create a ContactProfilePage component:
+   ```tsx
+   // src/pages/ContactProfilePage.tsx
+   import React, { useState, useEffect } from 'react';
+   import { useParams, useNavigate } from 'react-router-dom';
+   import { Box, Paper, Typography, Tabs, Tab, Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot, TimelineOppositeContent, Button, Chip } from '@mui/material'; // Or equivalent Chakra UI components
+   import { Phone as PhoneIcon, Chat as ChatIcon } from '@mui/icons-material'; // Or equivalent icons
+   import { callService, smsService } from '../services';
+   
+   // Helper function to merge and sort calls and messages by timestamp
+   const mergeInteractions = (calls, messages) => {
+     const callItems = calls.map(call => ({
+       type: 'call',
+       timestamp: call.timestamp,
+       data: call
+     }));
+     
+     const messageItems = messages.map(msg => ({
+       type: 'message',
+       timestamp: msg.timestamp,
+       data: msg
+     }));
+     
+     return [...callItems, ...messageItems].sort((a, b) => 
+       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+     );
+   };
+   
+   const ContactProfilePage = () => {
+     const { contactId } = useParams();
+     const navigate = useNavigate();
+     const [loading, setLoading] = useState(true);
+     const [contactData, setContactData] = useState(null);
+     const [interactions, setInteractions] = useState([]);
+     const [activeTab, setActiveTab] = useState(0);
+     
+     useEffect(() => {
+       if (!contactId) return;
+       
+       const fetchContactData = async () => {
+         setLoading(true);
+         try {
+           // In a real app, we'd have a dedicated contact service
+           // For this demo, we'll extract contact info from the SMS thread
+           const thread = await smsService.getSmsThreadByContactId(contactId);
+           
+           if (!thread) {
+             console.error('Contact not found');
+             return;
+           }
+           
+           setContactData({
+             id: contactId,
+             name: thread.contactName,
+             number: thread.contactNumber,
+             // In a real app, we'd have more contact details
+             email: `${thread.contactName.toLowerCase().replace(/\s/g, '.')}@example.com`,
+             tags: ['Prospect', 'Follow-up']
+           });
+           
+           // Get calls for this contact
+           const allCalls = await callService.getCalls();
+           const contactCalls = allCalls.filter(call => 
+             call.callerNumber === thread.contactNumber || 
+             call.dialedNumber === thread.contactNumber
+           );
+           
+           // Get messages for this contact
+           const messages = thread.messages;
+           
+           // Merge and sort interactions
+           const mergedInteractions = mergeInteractions(contactCalls, messages);
+           setInteractions(mergedInteractions);
+         } catch (error) {
+           console.error('Error fetching contact data:', error);
+         } finally {
+           setLoading(false);
+         }
+       };
+       
+       fetchContactData();
+     }, [contactId]);
+     
+     const handleTabChange = (event, newValue) => {
+       setActiveTab(newValue);
+     };
+     
+     const handleViewCall = (callId) => {
+       // Navigate to call logs and open the specific call
+       navigate(`/calls?callId=${callId}`);
+     };
+     
+     const handleViewChat = () => {
+       navigate(`/sms/${contactId}`);
+     };
+     
+     if (loading || !contactData) {
+       return (
+         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+           <Typography>Loading contact profile...</Typography>
+         </Box>
+       );
+     }
+     
+     return (
+       <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+         <Paper sx={{ p: 3, mb: 3 }}>
+           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+             <Box>
+               <Typography variant="h4">{contactData.name}</Typography>
+               <Typography variant="body1" color="text.secondary">{contactData.number}</Typography>
+               <Typography variant="body2" color="text.secondary">{contactData.email}</Typography>
+               <Box sx={{ mt: 1 }}>
+                 {contactData.tags.map((tag, index) => (
+                   <Chip key={index} label={tag} size="small" sx={{ mr: 1 }} />
+                 ))}
+               </Box>
+             </Box>
+             <Box>
+               <Button 
+                 variant="contained" 
+                 startIcon={<ChatIcon />} 
+                 onClick={handleViewChat}
+                 sx={{ mr: 1 }}
+               >
+                 View Chat
+               </Button>
+             </Box>
+           </Box>
+         </Paper>
+         
+         <Paper sx={{ p: 3 }}>
+           <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 3 }}>
+             <Tab label="All Interactions" />
+             <Tab label="Calls" />
+             <Tab label="Messages" />
+           </Tabs>
+           
+           <Timeline position="alternate">
+             {interactions
+               .filter(item => {
+                 if (activeTab === 0) return true;
+                 if (activeTab === 1) return item.type === 'call';
+                 if (activeTab === 2) return item.type === 'message';
+                 return false;
+               })
+               .map((item, index) => (
+                 <TimelineItem key={index}>
+                   <TimelineOppositeContent color="text.secondary">
+                     {new Date(item.timestamp).toLocaleString()}
+                   </TimelineOppositeContent>
+                   <TimelineSeparator>
+                     <TimelineDot color={item.type === 'call' ? 'primary' : 'secondary'}>
+                       {item.type === 'call' ? <PhoneIcon /> : <ChatIcon />}
+                     </TimelineDot>
+                     {index < interactions.length - 1 && <TimelineConnector />}
+                   </TimelineSeparator>
+                   <TimelineContent>
+                     <Paper sx={{ p: 2 }}>
+                       {item.type === 'call' ? (
+                         <>
+                           <Typography variant="subtitle1">
+                             {item.data.callerNumber === contactData.number ? 'Inbound Call' : 'Outbound Call'}
+                           </Typography>
+                           <Typography variant="body2">
+                             Duration: {item.data.duration}
+                           </Typography>
+                           {item.data.summary && (
+                             <Typography variant="body2" sx={{ mt: 1 }}>
+                               {item.data.summary}
+                             </Typography>
+                           )}
+                           <Button 
+                             size="small" 
+                             sx={{ mt: 1 }} 
+                             onClick={() => handleViewCall(item.data.id)}
+                           >
+                             View Details
+                           </Button>
+                         </>
+                       ) : (
+                         <>
+                           <Typography variant="subtitle1">
+                             {item.data.direction === 'inbound' ? 'Received Message' : 'Sent Message'}
+                           </Typography>
+                           <Typography variant="body2" sx={{ mt: 1 }}>
+                             {item.data.body}
+                           </Typography>
+                         </>
+                       )}
+                     </Paper>
+                   </TimelineContent>
+                 </TimelineItem>
+               ))}
+           </Timeline>
+         </Paper>
+       </Box>
+     );
+   };
+   
+   export default ContactProfilePage;
+   ```
+
+# Test Strategy:
+Test the profile view with various contact data. Verify that the contact details display correctly. Test the timeline to ensure it correctly merges and sorts calls and messages by timestamp. Test the tab filtering to ensure it correctly filters interactions by type. Test navigation to call details and SMS chat. Test with contacts that have different combinations of calls and messages.

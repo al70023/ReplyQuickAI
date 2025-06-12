@@ -1,0 +1,182 @@
+# Task ID: 4
+# Title: Implement Call Logs Table Component
+# Status: done
+# Dependencies: 3
+# Priority: medium
+# Description: Build the filterable and sortable table component for the Call Logs dashboard that displays the chronological history of all calls.
+# Details:
+1. Create a CallLogsTable component:
+   ```tsx
+   // src/components/calls/CallLogsTable.tsx
+   import React, { useState, useEffect } from 'react';
+   import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, TextField, Select, MenuItem } from '@mui/material'; // Or equivalent Chakra UI components
+   import { callService } from '../../services';
+   
+   const CallLogsTable = ({ onRowClick }) => {
+     const [calls, setCalls] = useState([]);
+     const [loading, setLoading] = useState(true);
+     const [filter, setFilter] = useState('');
+     const [sortField, setSortField] = useState('timestamp');
+     const [sortDirection, setSortDirection] = useState('desc');
+     
+     useEffect(() => {
+       const fetchCalls = async () => {
+         try {
+           const data = await callService.getCalls();
+           setCalls(data);
+         } catch (error) {
+           console.error('Error fetching calls:', error);
+         } finally {
+           setLoading(false);
+         }
+       };
+       
+       fetchCalls();
+     }, []);
+     
+     const handleSort = (field) => {
+       if (sortField === field) {
+         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+       } else {
+         setSortField(field);
+         setSortDirection('asc');
+       }
+     };
+     
+     const filteredCalls = calls.filter(call => 
+       call.callerNumber.includes(filter) || 
+       call.dialedNumber.includes(filter) ||
+       call.summary.toLowerCase().includes(filter.toLowerCase())
+     );
+     
+     const sortedCalls = [...filteredCalls].sort((a, b) => {
+       if (sortField === 'timestamp') {
+         return sortDirection === 'asc' 
+           ? new Date(a.timestamp) - new Date(b.timestamp)
+           : new Date(b.timestamp) - new Date(a.timestamp);
+       }
+       // Add other sort fields as needed
+       return 0;
+     });
+     
+     return (
+       <div>
+         <div className="filters">
+           <TextField 
+             label="Filter" 
+             value={filter} 
+             onChange={(e) => setFilter(e.target.value)} 
+             placeholder="Search by number or summary"
+           />
+           <Select
+             value={sortField}
+             onChange={(e) => setSortField(e.target.value)}
+           >
+             <MenuItem value="timestamp">Date/Time</MenuItem>
+             <MenuItem value="duration">Duration</MenuItem>
+             <MenuItem value="callerNumber">Caller Number</MenuItem>
+           </Select>
+           <Select
+             value={sortDirection}
+             onChange={(e) => setSortDirection(e.target.value)}
+           >
+             <MenuItem value="asc">Ascending</MenuItem>
+             <MenuItem value="desc">Descending</MenuItem>
+           </Select>
+         </div>
+         
+         {loading ? (
+           <div>Loading calls...</div>
+         ) : (
+           <TableContainer component={Paper}>
+             <Table>
+               <TableHead>
+                 <TableRow>
+                   <TableCell onClick={() => handleSort('callerNumber')}>Caller Number</TableCell>
+                   <TableCell onClick={() => handleSort('dialedNumber')}>Dialed Number</TableCell>
+                   <TableCell onClick={() => handleSort('timestamp')}>Date/Time</TableCell>
+                   <TableCell onClick={() => handleSort('duration')}>Duration</TableCell>
+                   <TableCell>AI Summary</TableCell>
+                   <TableCell onClick={() => handleSort('isQualified')}>Qualified</TableCell>
+                 </TableRow>
+               </TableHead>
+               <TableBody>
+                 {sortedCalls.map((call) => (
+                   <TableRow key={call.id} onClick={() => onRowClick(call)} style={{ cursor: 'pointer' }}>
+                     <TableCell>{call.callerNumber}</TableCell>
+                     <TableCell>{call.dialedNumber}</TableCell>
+                     <TableCell>{new Date(call.timestamp).toLocaleString()}</TableCell>
+                     <TableCell>{call.duration}</TableCell>
+                     <TableCell>{call.summary}</TableCell>
+                     <TableCell>{call.isQualified ? 'Yes' : 'No'}</TableCell>
+                   </TableRow>
+                 ))}
+               </TableBody>
+             </Table>
+           </TableContainer>
+         )}
+       </div>
+     );
+   };
+   
+   export default CallLogsTable;
+   ```
+2. Create a CallLogsPage component that uses the table:
+   ```tsx
+   // src/pages/CallLogsPage.tsx
+   import React, { useState } from 'react';
+   import CallLogsTable from '../components/calls/CallLogsTable';
+   
+   const CallLogsPage = () => {
+     const [selectedCall, setSelectedCall] = useState(null);
+     
+     const handleRowClick = (call) => {
+       setSelectedCall(call);
+       // Will open modal in next task
+     };
+     
+     return (
+       <div className="call-logs-page">
+         <h1>Call Logs</h1>
+         <CallLogsTable onRowClick={handleRowClick} />
+       </div>
+     );
+   };
+   
+   export default CallLogsPage;
+   ```
+
+# Test Strategy:
+Test the table component with various mock data scenarios. Verify that filtering works correctly for different search terms. Test sorting functionality for each column. Ensure the loading state displays correctly. Verify that clicking a row triggers the onRowClick callback with the correct call data.
+
+# Subtasks:
+## 1. Implement Call Service API Integration [done]
+### Dependencies: None
+### Description: Create the call service with methods to fetch call data from the backend API.
+### Details:
+Create a service file at src/services/callService.ts that exports functions for API calls. Implement the getCalls() method to fetch call logs from the backend. Include error handling, response parsing, and appropriate TypeScript interfaces for call data. The service should handle pagination if the API supports it.
+
+## 2. Build Core Table Component Structure [done]
+### Dependencies: None
+### Description: Implement the basic structure of the CallLogsTable component with data fetching and display.
+### Details:
+Create the CallLogsTable component with initial state setup, data fetching via useEffect, and basic table rendering. Implement the table structure with headers and rows displaying call data. Use Material UI components as specified. Ensure proper loading state handling while data is being fetched.
+
+## 3. Implement Filtering Functionality [done]
+### Dependencies: None
+### Description: Add filtering capabilities to the CallLogsTable to allow users to search for specific calls.
+### Details:
+Enhance the CallLogsTable component with filter input field and filtering logic. Implement the filter state and onChange handler. Create the filteredCalls logic to filter based on callerNumber, dialedNumber, and summary fields. Ensure the filter is case-insensitive for text fields and updates the table in real-time as users type.
+
+## 4. Implement Sorting Functionality [done]
+### Dependencies: None
+### Description: Add column sorting capabilities to allow users to sort the call logs by different fields.
+### Details:
+Implement the sorting mechanism with sortField and sortDirection state variables. Create the handleSort function to toggle sort direction when clicking the same column or set a new sort field. Implement the sortedCalls logic to sort the filtered data based on the selected field and direction. Add visual indicators in column headers to show the current sort field and direction.
+
+## 5. Create Call Logs Page with Row Selection [done]
+### Dependencies: None
+### Description: Implement the CallLogsPage component that uses the table and handles row selection for future detail view.
+### Details:
+Create the CallLogsPage component that imports and renders the CallLogsTable. Implement the selectedCall state and handleRowClick function to track which call is selected. Add styling to highlight the selected row in the table. Prepare the component structure for the future call detail modal that will be implemented in a subsequent task.
+

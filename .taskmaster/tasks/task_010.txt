@@ -1,0 +1,209 @@
+# Task ID: 10
+# Title: Implement App Routing and Integration
+# Status: done
+# Dependencies: 4, 5, 8, 9
+# Priority: high
+# Description: Set up the application routing and integrate all components to create a cohesive user experience with navigation between views.
+# Details:
+1. Create an App component with routing:
+   ```tsx
+   // src/App.tsx
+   import React from 'react';
+   import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+   import { ThemeProvider, createTheme, CssBaseline } from '@mui/material'; // Or equivalent Chakra UI setup
+   import AppLayout from './components/layout/AppLayout';
+   import CallLogsPage from './pages/CallLogsPage';
+   import SMSInboxPage from './pages/SMSInboxPage';
+   import ContactProfilePage from './pages/ContactProfilePage';
+   
+   // Create a theme instance
+   const theme = createTheme({
+     palette: {
+       primary: {
+         main: '#1976d2',
+       },
+       secondary: {
+         main: '#dc004e',
+       },
+       background: {
+         default: '#f5f5f5',
+       },
+     },
+     typography: {
+       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+     },
+   });
+   
+   const App = () => {
+     return (
+       <ThemeProvider theme={theme}>
+         <CssBaseline />
+         <Router>
+           <AppLayout>
+             <Routes>
+               <Route path="/calls" element={<CallLogsPage />} />
+               <Route path="/sms" element={<SMSInboxPage />} />
+               <Route path="/sms/:contactId" element={<SMSInboxPage />} />
+               <Route path="/contacts/:contactId" element={<ContactProfilePage />} />
+               <Route path="/" element={<Navigate to="/calls" replace />} />
+               <Route path="*" element={<Navigate to="/calls" replace />} />
+             </Routes>
+           </AppLayout>
+         </Router>
+       </ThemeProvider>
+     );
+   };
+   
+   export default App;
+   ```
+
+2. Create an AppLayout component for consistent navigation:
+   ```tsx
+   // src/components/layout/AppLayout.tsx
+   import React, { useState } from 'react';
+   import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Box, useMediaQuery, useTheme } from '@mui/material'; // Or equivalent Chakra UI components
+   import { Menu as MenuIcon, Phone as PhoneIcon, Chat as ChatIcon, Person as PersonIcon } from '@mui/icons-material'; // Or equivalent icons
+   import { useNavigate, useLocation } from 'react-router-dom';
+   
+   const drawerWidth = 240;
+   
+   const AppLayout = ({ children }) => {
+     const theme = useTheme();
+     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+     const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+     const navigate = useNavigate();
+     const location = useLocation();
+     
+     const handleNavigation = (path) => {
+       navigate(path);
+       if (isMobile) {
+         setMobileDrawerOpen(false);
+       }
+     };
+     
+     const isActive = (path) => {
+       return location.pathname.startsWith(path);
+     };
+     
+     const drawer = (
+       <div>
+         <Toolbar>
+           <Typography variant="h6" noWrap>
+             Unified Comms
+           </Typography>
+         </Toolbar>
+         <List>
+           <ListItem 
+             button 
+             onClick={() => handleNavigation('/calls')} 
+             selected={isActive('/calls')}
+           >
+             <ListItemIcon>
+               <PhoneIcon />
+             </ListItemIcon>
+             <ListItemText primary="Call Logs" />
+           </ListItem>
+           <ListItem 
+             button 
+             onClick={() => handleNavigation('/sms')} 
+             selected={isActive('/sms')}
+           >
+             <ListItemIcon>
+               <ChatIcon />
+             </ListItemIcon>
+             <ListItemText primary="SMS Inbox" />
+           </ListItem>
+         </List>
+       </div>
+     );
+     
+     return (
+       <Box sx={{ display: 'flex' }}>
+         <AppBar 
+           position="fixed" 
+           sx={{
+             width: isMobile ? '100%' : `calc(100% - ${drawerWidth}px)`,
+             ml: isMobile ? 0 : `${drawerWidth}px`,
+           }}
+         >
+           <Toolbar>
+             {isMobile && (
+               <IconButton
+                 color="inherit"
+                 aria-label="open drawer"
+                 edge="start"
+                 onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+                 sx={{ mr: 2 }}
+               >
+                 <MenuIcon />
+               </IconButton>
+             )}
+             <Typography variant="h6" noWrap component="div">
+               {location.pathname.includes('/calls') && 'Call Logs'}
+               {location.pathname.includes('/sms') && 'SMS Inbox'}
+               {location.pathname.includes('/contacts') && 'Contact Profile'}
+             </Typography>
+           </Toolbar>
+         </AppBar>
+         
+         {isMobile ? (
+           <Drawer
+             variant="temporary"
+             open={mobileDrawerOpen}
+             onClose={() => setMobileDrawerOpen(false)}
+             ModalProps={{ keepMounted: true }}
+             sx={{
+               '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+             }}
+           >
+             {drawer}
+           </Drawer>
+         ) : (
+           <Drawer
+             variant="permanent"
+             sx={{
+               width: drawerWidth,
+               flexShrink: 0,
+               '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+             }}
+             open
+           >
+             {drawer}
+           </Drawer>
+         )}
+         
+         <Box
+           component="main"
+           sx={{ 
+             flexGrow: 1, 
+             p: 0, 
+             width: { md: `calc(100% - ${drawerWidth}px)` }, 
+             mt: '64px' // AppBar height
+           }}
+         >
+           {children}
+         </Box>
+       </Box>
+     );
+   };
+   
+   export default AppLayout;
+   ```
+
+3. Update the index.tsx file to render the App component:
+   ```tsx
+   // src/index.tsx
+   import React from 'react';
+   import ReactDOM from 'react-dom';
+   import App from './App';
+   
+   ReactDOM.render(
+     <React.StrictMode>
+       <App />
+     </React.StrictMode>,
+     document.getElementById('root')
+   );
+   ```
+
+# Test Strategy:
+Test the routing to ensure navigation between all views works correctly. Verify that the AppLayout renders consistently across all pages. Test responsive behavior to ensure the layout adapts appropriately to different screen sizes. Test direct URL access to each route to ensure they load correctly. Test that the navigation drawer highlights the active route. Test that the 'Open Chat' button in the Call Detail modal correctly navigates to the SMS view for the selected contact.

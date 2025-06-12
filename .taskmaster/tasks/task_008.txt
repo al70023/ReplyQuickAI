@@ -1,0 +1,118 @@
+# Task ID: 8
+# Title: Implement SMS Inbox Page
+# Status: done
+# Dependencies: 6, 7
+# Priority: medium
+# Description: Create the SMS Inbox page that combines the Contact List Panel and Message Thread Panel into a two-panel layout.
+# Details:
+1. Create an SMSInboxPage component:
+   ```tsx
+   // src/pages/SMSInboxPage.tsx
+   import React, { useState, useEffect } from 'react';
+   import { Box, Paper, useMediaQuery, useTheme, IconButton, Drawer } from '@mui/material'; // Or equivalent Chakra UI components
+   import { Menu as MenuIcon } from '@mui/icons-material'; // Or equivalent icon
+   import { useParams, useNavigate } from 'react-router-dom';
+   import ContactListPanel from '../components/sms/ContactListPanel';
+   import MessageThreadPanel from '../components/sms/MessageThreadPanel';
+   import { smsService } from '../services';
+   
+   const SMSInboxPage = () => {
+     const { contactId } = useParams();
+     const navigate = useNavigate();
+     const [selectedContactId, setSelectedContactId] = useState(contactId || '');
+     const [drawerOpen, setDrawerOpen] = useState(false);
+     const theme = useTheme();
+     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+     
+     useEffect(() => {
+       // If contactId is provided in URL but not in state, update state
+       if (contactId && contactId !== selectedContactId) {
+         setSelectedContactId(contactId);
+       }
+       
+       // If no contactId is provided, try to select the first thread
+       if (!contactId) {
+         const fetchFirstThread = async () => {
+           try {
+             const threads = await smsService.getSmsThreads();
+             if (threads.length > 0) {
+               const firstContactId = threads[0].contactId;
+               setSelectedContactId(firstContactId);
+               navigate(`/sms/${firstContactId}`, { replace: true });
+             }
+           } catch (error) {
+             console.error('Error fetching threads:', error);
+           }
+         };
+         
+         fetchFirstThread();
+       }
+     }, [contactId, selectedContactId, navigate]);
+     
+     const handleContactSelect = (contactId) => {
+       setSelectedContactId(contactId);
+       navigate(`/sms/${contactId}`);
+       if (isMobile) {
+         setDrawerOpen(false);
+       }
+     };
+     
+     return (
+       <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+           <h1>SMS Inbox</h1>
+           {isMobile && (
+             <IconButton 
+               edge="start" 
+               color="inherit" 
+               aria-label="menu"
+               onClick={() => setDrawerOpen(true)}
+               sx={{ mr: 2 }}
+             >
+               <MenuIcon />
+             </IconButton>
+           )}
+         </Box>
+         
+         <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+           {isMobile ? (
+             <>
+               <Drawer
+                 anchor="left"
+                 open={drawerOpen}
+                 onClose={() => setDrawerOpen(false)}
+               >
+                 <Box sx={{ width: 300, height: '100%' }}>
+                   <ContactListPanel 
+                     onContactSelect={handleContactSelect} 
+                     selectedContactId={selectedContactId} 
+                   />
+                 </Box>
+               </Drawer>
+               <Box sx={{ flex: 1 }}>
+                 <MessageThreadPanel contactId={selectedContactId} />
+               </Box>
+             </>
+           ) : (
+             <>
+               <Paper sx={{ width: 300, height: '100%', overflow: 'hidden' }}>
+                 <ContactListPanel 
+                   onContactSelect={handleContactSelect} 
+                   selectedContactId={selectedContactId} 
+                 />
+               </Paper>
+               <Box sx={{ flex: 1, ml: 2 }}>
+                 <MessageThreadPanel contactId={selectedContactId} />
+               </Box>
+             </>
+           )}
+         </Box>
+       </Box>
+     );
+   };
+   
+   export default SMSInboxPage;
+   ```
+
+# Test Strategy:
+Test the page layout in both desktop and mobile viewports. Verify that the two-panel layout displays correctly on desktop and switches to a drawer navigation on mobile. Test contact selection to ensure it updates the URL and displays the correct message thread. Test navigation between contacts. Verify that URL parameters are correctly handled when directly accessing a specific contact's thread.

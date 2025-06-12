@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+*.pem
+.env
+.cursor/mcp.json
